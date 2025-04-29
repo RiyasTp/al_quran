@@ -1,5 +1,6 @@
+import 'package:al_quran/design_system/components/custom_card.dart';
 import 'package:al_quran/features/notes/db_helper.dart';
-import 'package:al_quran/features/notes/note_editor.dart';
+import 'package:al_quran/features/notes/edit_notes_bottom_sheet.dart';
 import 'package:al_quran/features/notes/notes_model.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +12,7 @@ class NotesPage extends StatefulWidget {
 }
 
 class _NotesPageState extends State<NotesPage> {
-  final  _dbHelper = NotesDatabaseHelper.instance;
+  final _dbHelper = NotesDatabaseHelper.instance;
   late Future<List<Note>> _notesFuture;
 
   @override
@@ -23,14 +24,14 @@ class _NotesPageState extends State<NotesPage> {
   Future<List<Note>> _getNotes() async {
     final db = await _dbHelper.database;
     final maps = await db.query('notes', orderBy: 'updated_at DESC');
-    
+
     final notes = <Note>[];
     for (final map in maps) {
       final note = Note.fromMap(map);
       final tags = await _dbHelper.getTagsForNote(note.id);
       notes.add(note.copyWith(tags: tags));
     }
-    
+
     return notes;
   }
 
@@ -62,43 +63,79 @@ class _NotesPageState extends State<NotesPage> {
               itemCount: notes.length,
               itemBuilder: (context, index) {
                 final note = notes[index];
-                return Card(
-                  margin: EdgeInsets.all(8),
+                return CustomCard(
                   child: ListTile(
-                    title: Text('Surah ${note.surahNumber}:${note.ayahNumber}'),
+                    contentPadding: EdgeInsets.all(8),
+
+                    title: Row(children: [
+                      Expanded(
+                          child: Text(
+                              'Surah ${note.surahNumber}:${note.ayahNumber}')),
+                      PopupMenuButton<String>(
+                        elevation: 12,
+                        shadowColor: Colors.black, //TODO : change to theme
+                        splashRadius: 1,
+                        color: Theme.of(context).colorScheme.surfaceDim,
+                        child: Icon(Icons.more_vert),
+                        onSelected: (value) async {
+                          if (value == 'edit') {
+                            await showNotesEditorSheet(
+                              context,
+                              surahNumber: note.surahNumber,
+                              ayahNumber: note.ayahNumber,
+                              existingNote: note,
+                            );
+                            _refreshNotes();
+                          } else if (value == 'delete') {
+                            await _dbHelper.deleteNote(note.id);
+                            _refreshNotes();
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 'edit',
+                            child: Text('Edit'),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Text('Delete',
+                                style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.error)),
+                          ),
+                        ],
+                      ),
+                    ]),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(note.content),
+                        Text(
+                          note.content,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         if (note.tags.isNotEmpty) ...[
                           SizedBox(height: 8),
                           Wrap(
                             spacing: 4,
-                            children: note.tags.map((tag) => Chip(
-                              label: Text(tag.name),
-                              backgroundColor: tag.color.withOpacity(0.2),
-                            )).toList(),
+                            children: note.tags
+                                .map((tag) => Chip(
+                                      label: Text(tag.name),
+                                      backgroundColor:
+                                          tag.color.withOpacity(0.2),
+                                    ))
+                                .toList(),
                           ),
                         ],
+                        Text(
+                          note.updatedAt != null
+                              ? 'Updated: ${note.updatedAt!.toLocal().toString().split(' ')[0]}'
+                              : 'Created: ${note.createdAt.toLocal().toString().split(' ')[0]}',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
                       ],
                     ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: () async {
-                        final result = await showDialog<bool>(
-                          context: context,
-                          builder: (context) => NoteEditorDialog(
-                            surahNumber: note.surahNumber,
-                            ayahNumber: note.ayahNumber,
-                            existingNote: note,
-                          ),
-                        );
-                        if (result == true) _refreshNotes();
-                      },
-                    ),
-                    onTap: () {
-                     
-                    },
+                    onTap: () {},
                   ),
                 );
               },

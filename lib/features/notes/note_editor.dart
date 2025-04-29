@@ -53,7 +53,7 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
 
       return Container(
         constraints: BoxConstraints(maxHeight: maxSheetHeight),
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+        padding: EdgeInsets.fromLTRB(16, 20, 16, MediaQuery.of(context).viewInsets.bottom + 16),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -74,6 +74,7 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
                 TextFormField(
                   controller: _contentController,
                   decoration: InputDecoration(labelText: 'Note'),
+                  minLines: 2,
                   maxLines: 5,
                   validator: (value) {
                     if (value == null || value.isEmpty) {

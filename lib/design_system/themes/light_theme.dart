@@ -67,4 +67,14 @@ final ThemeData lightTheme = ThemeData(
     showUnselectedLabels: true,
     type: BottomNavigationBarType.fixed, // or .shifting
   ),
+
+  cardTheme: CardTheme(
+    color: AppColors.surface,
+    shadowColor: AppColors.shadow,
+    elevation: 4,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    margin: const EdgeInsets.all(8),
+  ),
 );

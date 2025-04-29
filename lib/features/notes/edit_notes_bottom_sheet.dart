@@ -3,13 +3,13 @@ import 'package:al_quran/features/notes/note_editor.dart';
 import 'package:al_quran/features/notes/notes_model.dart';
 import 'package:flutter/material.dart';
 
-void showNotesEditorSheet(
+Future<void> showNotesEditorSheet(
   BuildContext context, {
   required int surahNumber,
   required int ayahNumber,
   required Note? existingNote,
 }) async {
-  await showModalBottomSheet(
+ return await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
