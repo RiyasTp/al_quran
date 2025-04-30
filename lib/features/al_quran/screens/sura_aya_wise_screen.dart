@@ -66,12 +66,6 @@ class _AyahPageState extends State<AyahPage> {
   }
 
   @override
-  void dispose() {
-    audioPlayer.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => audioPlayer,

@@ -7,10 +7,6 @@ import 'package:just_audio/just_audio.dart';
 
 class QuranAudioPlayer extends ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();
-  static final QuranAudioPlayer _instance = QuranAudioPlayer._internal();
-  factory QuranAudioPlayer() => _instance;
-  QuranAudioPlayer._internal();
-  static QuranAudioPlayer get instance => _instance;
   
   static const String _baseUrl = 'https://tanzil.net/res/audio/';
   String author = 'afasy';
