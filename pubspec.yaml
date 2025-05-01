@@ -93,6 +93,10 @@ flutter:
     - family: Hafs
       fonts:
         - asset: assets/fonts/hafs.ttf
+    - family: Sura Names
+      fonts:
+        - asset: assets/fonts/sura_names.ttf
+
     - family: Hafs2
       fonts:
         - asset: assets/fonts/KfgqpcHafsUthmanicScriptRegular.ttf

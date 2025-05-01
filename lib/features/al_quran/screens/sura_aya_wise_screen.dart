@@ -8,6 +8,7 @@ import 'package:al_quran/features/audio_plyer/quran_audio_player.dart';
 import 'package:al_quran/features/bookmarks/book_marks_db_helper.dart';
 import 'package:al_quran/features/notes/db_helper.dart';
 import 'package:al_quran/features/notes/edit_notes_bottom_sheet.dart';
+import 'package:al_quran/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -44,7 +45,7 @@ class _AyahPageState extends State<AyahPage> {
     audioPlayer.init();
     audioPlayer.addListener(() {
       if (audioPlayer.isPlaying) {
-        _scrollToAyah(audioPlayer.currentAyyaIndex);
+        _jumpToAyah(audioPlayer.currentAyyaIndex);
       }
     });
 
@@ -80,6 +81,9 @@ class _AyahPageState extends State<AyahPage> {
       //   ),
       // ),
       child: Scaffold(
+        bottomNavigationBar:QuranPlayerControls(
+          audioPlayer: audioPlayer,
+        ),
         appBar: AppBar(
           elevation: 0,
           title: RichText(
@@ -154,10 +158,11 @@ class _AyahPageState extends State<AyahPage> {
                               onTap: () {
                                 showCopyBottomSheet(
                                   context,
-                                  arabicText: aya.text,
+                                  arabicText: aya.text+ nonBreakSpaceChar+ "${toArabicNumerals(aya.index)}",
                                   translationText: ayaTranslation.text,
-                                  reference:
-                                      "Surah ${widget.sura.name} • ${widget.sura.index} ${aya.index}",
+                                  translationReference:
+                                      "Surah ${widget.suraMetaData.tname} (${widget.suraMetaData.ename}) • ${widget.sura.index} : ${aya.index}",
+                                      arabicReference: "سورة$nonBreakSpaceChar${widget.sura.name}$nonBreakSpaceChar•$nonBreakSpaceChar${toArabicNumerals(widget.sura.index)}$nonBreakSpaceChar:$nonBreakSpaceChar${toArabicNumerals(aya.index)}",
                                 );
                               },
                             ),
@@ -296,5 +301,170 @@ class _AyahPageState extends State<AyahPage> {
     );
 
     setState(() {}); // Refresh the UI
+  }
+}
+
+
+class QuranPlayerControls extends StatefulWidget {
+  final QuranAudioPlayer audioPlayer;
+
+  const QuranPlayerControls({
+    required this.audioPlayer,
+  });
+
+  @override
+  _QuranPlayerControlsState createState() => _QuranPlayerControlsState();
+}
+
+class _QuranPlayerControlsState extends State<QuranPlayerControls> {
+  double _sliderValue = 0;
+  bool _isPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.audioPlayer.playerStateStream.listen((state) {
+      if (mounted) {
+        setState(() => _isPlaying = state.playing);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+      
+            _buildProgressBar(),
+            SizedBox(height: 4),
+            Row(
+              children: [
+                Text(
+                  'Surah ${widget.audioPlayer.currentSura}:${widget.audioPlayer.currentAya}',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Spacer(),
+                Text(
+                  '${_formatDuration(widget.audioPlayer.position)} / '
+                  '${_formatDuration(widget.audioPlayer.duration)}',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+     
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(
+                icon: Icon(Icons.skip_previous),
+                onPressed: _playPreviousAya,
+                iconSize: 30,
+              ),
+              IconButton(
+                icon: Icon(
+                  _isPlaying ? Icons.pause : Icons.play_arrow,
+                  size: 36,
+                ),
+                onPressed: _togglePlayPause,
+              ),
+              IconButton(
+                icon: Icon(Icons.skip_next),
+                onPressed: _playNextAya,
+                iconSize: 30,
+              ),
+              IconButton(
+                icon: Icon(Icons.repeat),
+                onPressed: _toggleRepeatMode,
+                color: widget.audioPlayer.loopMode ? Colors.blue : null,
+              ),
+              IconButton(
+                icon: Icon(Icons.speed),
+                onPressed: _showSpeedDialog,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressBar() {
+    return StreamBuilder<Duration>(
+      stream: widget.audioPlayer.positionStream,
+      builder: (context, snapshot) {
+        final position = snapshot.data ?? Duration.zero;
+        final duration = widget.audioPlayer.duration ?? Duration.zero;
+        
+        return Slider(
+          value: position.inSeconds.toDouble(),
+          min: 0,
+          max: duration.inSeconds.toDouble(),
+          onChanged: (value) {
+            widget.audioPlayer.seek(Duration(seconds: value.toInt()));
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _togglePlayPause() async {
+    _isPlaying ? await widget.audioPlayer.pause() : await widget.audioPlayer.play();
+  }
+
+  Future<void> _playNextAya() async {
+    await widget.audioPlayer.playNextAya();
+  }
+
+  Future<void> _playPreviousAya() async {
+    await widget.audioPlayer.playPreviousAya();
+  }
+
+  Future<void> _toggleRepeatMode() async {
+    await widget.audioPlayer.toggleLoopMode();
+    setState(() {});
+  }
+
+  Future<void> _showSpeedDialog() async {
+    final speed = await showDialog<double>(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: Text('Playback Speed'),
+          children: [0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map((speed) {
+            return SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, speed),
+              child: Text(
+                '${speed}x',
+                style: TextStyle(
+                  color: widget.audioPlayer.playbackSpeed == speed 
+                      ? Theme.of(context).primaryColor 
+                      : null,
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+    
+    if (speed != null) {
+      await widget.audioPlayer.setPlaybackSpeed(speed);
+    }
+  }
+
+  String _formatDuration(Duration? duration) {
+    if (duration == null) return '--:--';
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 }

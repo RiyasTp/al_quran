@@ -1,5 +1,5 @@
-
 import 'package:al_quran/features/al_quran/widgets/constant_widgets.dart';
+import 'package:al_quran/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -7,7 +7,8 @@ void showCopyBottomSheet(
   BuildContext context, {
   required String arabicText,
   required String translationText,
-  required String reference,
+  required String translationReference,
+  required String arabicReference,
 }) {
   bool copyArabic = true;
   bool copyTranslation = true;
@@ -28,9 +29,9 @@ void showCopyBottomSheet(
         builder: (context, setState) {
           String buildCopyText() {
             String result = '';
-            if (copyArabic) result += "$arabicText\n";
+            if (copyArabic) result += "${arabicText.replaceAll(nonBreakSpaceChar, ' ')} ${arabicReference.replaceAll(nonBreakSpaceChar, ' ')}\n";
             if (copyTranslation) result += "$translationText\n";
-            if (copyReference) result += "📍 $reference";
+            if (copyReference) result += "📍 $translationReference";
             return result.trim();
           }
 
@@ -69,8 +70,48 @@ void showCopyBottomSheet(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: SingleChildScrollView(
                           child: Center(
-                            child: Text(
-                              buildCopyText(),
+                            child: Text.rich(
+                              TextSpan(children: [
+
+                                if (copyArabic)
+                                  TextSpan(
+                                  text: arabicText,
+                                  style: TextStyle(
+                                    fontFamily: "Hafs2",
+                                    fontSize: 26,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                                if (copyArabic)
+                                  TextSpan(
+                                  text: "  $arabicReference",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                if (copyArabic && copyTranslation)
+                                  const TextSpan(
+                                    text: "\n",
+                                  ),
+                                if (copyTranslation)
+                                  TextSpan(
+                                  text: "\n$translationText",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                               
+                                TextSpan(
+                                  text: "\n📍 $translationReference",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ]),
                               textAlign: TextAlign.center,
                               style: const TextStyle(fontSize: 16),
                             ),
