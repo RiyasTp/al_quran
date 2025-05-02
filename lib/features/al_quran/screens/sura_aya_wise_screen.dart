@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_quran/features/al_quran/models/quran_models.dart';
 import 'package:al_quran/features/al_quran/screens/sheets_and_alerts/copy_aya_bottom_sheet.dart';
 import 'package:al_quran/features/al_quran/widgets/aya_rich_text_widget.dart';
@@ -101,7 +103,9 @@ class _AyahPageState extends State<AyahPage> {
             ),
           ),
           actions: [
-            IconButton(onPressed: () {}, icon: Icon(Icons.settings_outlined))
+            IconButton(onPressed: () {}, icon: Icon(Icons.settings_outlined)),
+            DownloadButton(
+                sura: widget.sura),
           ],
         ),
         body: Padding(
@@ -296,9 +300,9 @@ class _AyahPageState extends State<AyahPage> {
       widget.sura.index,
       ayahNumber,
     );
-    if(!context.mounted) return; 
+    if (!context.mounted) return;
     await showNotesEditorSheet(
-      context,   // ignore: use_build_context_synchronously
+      context, // ignore: use_build_context_synchronously
       surahNumber: widget.sura.index,
       ayahNumber: ayahNumber,
       existingNote: existingNote,
@@ -311,7 +315,8 @@ class _AyahPageState extends State<AyahPage> {
 class QuranPlayerControls extends StatefulWidget {
   final QuranAudioPlayer audioPlayer;
 
-  const QuranPlayerControls({super.key, 
+  const QuranPlayerControls({
+    super.key,
     required this.audioPlayer,
   });
 
@@ -398,7 +403,7 @@ class _QuranPlayerControlsState extends State<QuranPlayerControls> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-             Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
@@ -419,7 +424,6 @@ class _QuranPlayerControlsState extends State<QuranPlayerControls> {
                 widget.audioPlayer.seek(Duration(seconds: value.toInt()));
               },
             ),
-           
           ],
         );
       },
@@ -478,5 +482,99 @@ class _QuranPlayerControlsState extends State<QuranPlayerControls> {
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
+}
+
+class DownloadButton extends StatelessWidget {
+  final Sura sura;
+
+
+  const DownloadButton({super.key, 
+    required this.sura,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final vm = context.watch<QuranAudioPlayer>();
+    try {
+      return FutureBuilder<bool>(
+        future: vm.downloadManger.isSurahDownloaded(sura.index, 'afasy'),
+        builder: (context, snapshot) {
+          final isDownloaded = snapshot.data ?? false;
+
+          return IconButton(
+            icon: Icon(isDownloaded ? Icons.download_done : Icons.download),
+            onPressed: () async {
+              if (isDownloaded) {
+                // Option to delete downloaded surah
+                _confirmDelete(context);
+              } else {
+                await _downloadSurah(context, vm.downloadManger);
+              }
+            },
+          );
+        },
+      );
+    } catch (e) {
+      return CircularProgressIndicator();
+    }
+  }
+
+  Future<void> _downloadSurah(BuildContext context, QuranDownloadManager downloadManager) async {
+    final scaffold = ScaffoldMessenger.of(context);
+    try {
+      await downloadManager.downloadSurah(
+        sura: sura,
+        surahNumber: sura.index,
+        reciter: 'afasy',
+        onProgress: (count, total) {
+          log( 'Download progress: $count/$total');
+          // Show download progress
+          scaffold.showSnackBar(SnackBar(
+            content: LinearProgressIndicator(value: count / total),
+            duration: Duration(days: 1),
+          ));
+        },
+      );
+      scaffold.hideCurrentSnackBar();
+      scaffold.showSnackBar(SnackBar(content: Text('Download completed')));
+    } catch (e) {
+      scaffold.hideCurrentSnackBar();
+      scaffold.showSnackBar(SnackBar(content: Text('Download failed: $e')));
+    }
+  }
+
+  void _confirmDelete(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete downloaded surah?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _deleteSurah(context);
+            },
+            child: Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteSurah(BuildContext context) async {
+    // final dir = Directory(
+    //   '${downloadManager._cachePath}/afasy/$surahNumber'
+    // );
+    // if (await dir.exists()) {
+    //   await dir.delete(recursive: true);
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text('Surah deleted')),
+    //   );
+    // }
   }
 }
