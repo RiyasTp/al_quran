@@ -66,9 +66,6 @@ class SuraMetaData {
   });
 }
 
-
-
-
 class QuranPage extends QuranTypeWiseData {
   QuranPage({
     required super.index,
@@ -154,13 +151,15 @@ abstract class QuranTypeWiseData {
 }
 
 enum QuranDataType {
-  page('pages', 'page'),
-  juz('juzs', 'juz'),
-  hizb('hizbs', 'quarter'),
-  sura('suras', 'sura'),
-  ruku('rukus', 'ruku'),;
+  page('Page', 'pages', 'page'),
+  juz('Juz', 'juzs', 'juz'),
+  hizb('Hizb', 'hizbs', 'quarter'),
+  sura('Sura', 'suras', 'sura'),
+  ruku('Rukus', 'rukus', 'ruku'),
+  ;
 
   final String parentElement;
   final String childElement;
-  const QuranDataType(this.parentElement, this.childElement);
+  final String typeName;
+  const QuranDataType(this.typeName, this.parentElement, this.childElement);
 }

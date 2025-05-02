@@ -45,7 +45,7 @@ class _AyahPageState extends State<AyahPage> {
     audioPlayer.init();
     audioPlayer.addListener(() {
       if (audioPlayer.isPlaying) {
-        _jumpToAyah(audioPlayer.currentAyyaIndex);
+        _scrollToAyah(audioPlayer.currentAyyaIndex);
       }
     });
 
@@ -81,7 +81,7 @@ class _AyahPageState extends State<AyahPage> {
       //   ),
       // ),
       child: Scaffold(
-        bottomNavigationBar:QuranPlayerControls(
+        bottomNavigationBar: QuranPlayerControls(
           audioPlayer: audioPlayer,
         ),
         appBar: AppBar(
@@ -158,11 +158,14 @@ class _AyahPageState extends State<AyahPage> {
                               onTap: () {
                                 showCopyBottomSheet(
                                   context,
-                                  arabicText: aya.text+ nonBreakSpaceChar+ "${toArabicNumerals(aya.index)}",
+                                  arabicText: aya.text +
+                                      nonBreakSpaceChar +
+                                      toArabicNumerals(aya.index),
                                   translationText: ayaTranslation.text,
                                   translationReference:
-                                      "Surah ${widget.suraMetaData.tname} (${widget.suraMetaData.ename}) • ${widget.sura.index} : ${aya.index}",
-                                      arabicReference: "سورة$nonBreakSpaceChar${widget.sura.name}$nonBreakSpaceChar•$nonBreakSpaceChar${toArabicNumerals(widget.sura.index)}$nonBreakSpaceChar:$nonBreakSpaceChar${toArabicNumerals(aya.index)}",
+                                      "Surah ${widget.suraMetaData.tname} (${widget.suraMetaData.ename})  ${widget.sura.index} : ${aya.index}",
+                                  arabicReference:
+                                      "سورة$nonBreakSpaceChar${widget.sura.name}$nonBreakSpaceChar•$nonBreakSpaceChar${toArabicNumerals(widget.sura.index)}$nonBreakSpaceChar:$nonBreakSpaceChar${toArabicNumerals(aya.index)}",
                                 );
                               },
                             ),
@@ -293,8 +296,9 @@ class _AyahPageState extends State<AyahPage> {
       widget.sura.index,
       ayahNumber,
     );
-    showNotesEditorSheet(
-      context,
+    if(!context.mounted) return; 
+    await showNotesEditorSheet(
+      context,   // ignore: use_build_context_synchronously
       surahNumber: widget.sura.index,
       ayahNumber: ayahNumber,
       existingNote: existingNote,
@@ -304,20 +308,18 @@ class _AyahPageState extends State<AyahPage> {
   }
 }
 
-
 class QuranPlayerControls extends StatefulWidget {
   final QuranAudioPlayer audioPlayer;
 
-  const QuranPlayerControls({
+  const QuranPlayerControls({super.key, 
     required this.audioPlayer,
   });
 
   @override
-  _QuranPlayerControlsState createState() => _QuranPlayerControlsState();
+  createState() => _QuranPlayerControlsState();
 }
 
 class _QuranPlayerControlsState extends State<QuranPlayerControls> {
-  double _sliderValue = 0;
   bool _isPlaying = false;
 
   @override
@@ -332,7 +334,9 @@ class _QuranPlayerControlsState extends State<QuranPlayerControls> {
 
   @override
   Widget build(BuildContext context) {
-    
+    if (!widget.audioPlayer.canShowControls) {
+      return SizedBox.shrink();
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -343,24 +347,11 @@ class _QuranPlayerControlsState extends State<QuranPlayerControls> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-      
-            _buildProgressBar(),
-            SizedBox(height: 4),
-            Row(
-              children: [
-                Text(
-                  'Surah ${widget.audioPlayer.currentSura}:${widget.audioPlayer.currentAya}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Spacer(),
-                Text(
-                  '${_formatDuration(widget.audioPlayer.position)} / '
-                  '${_formatDuration(widget.audioPlayer.duration)}',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ],
-            ),
-     
+          _buildProgressBar(),
+          Text(
+            'Surah ${widget.audioPlayer.currentSura?.index}:${widget.audioPlayer.currentAya}',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -403,21 +394,42 @@ class _QuranPlayerControlsState extends State<QuranPlayerControls> {
       builder: (context, snapshot) {
         final position = snapshot.data ?? Duration.zero;
         final duration = widget.audioPlayer.duration ?? Duration.zero;
-        
-        return Slider(
-          value: position.inSeconds.toDouble(),
-          min: 0,
-          max: duration.inSeconds.toDouble(),
-          onChanged: (value) {
-            widget.audioPlayer.seek(Duration(seconds: value.toInt()));
-          },
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _formatDuration(widget.audioPlayer.position),
+                  style: TextStyle(fontSize: 12),
+                ),
+                Text(
+                  _formatDuration(widget.audioPlayer.duration),
+                  style: TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+            Slider(
+              value: position.inSeconds.toDouble(),
+              min: 0,
+              max: duration.inSeconds.toDouble(),
+              onChanged: (value) {
+                widget.audioPlayer.seek(Duration(seconds: value.toInt()));
+              },
+            ),
+           
+          ],
         );
       },
     );
   }
 
   Future<void> _togglePlayPause() async {
-    _isPlaying ? await widget.audioPlayer.pause() : await widget.audioPlayer.play();
+    _isPlaying
+        ? await widget.audioPlayer.pause()
+        : await widget.audioPlayer.play();
   }
 
   Future<void> _playNextAya() async {
@@ -445,8 +457,8 @@ class _QuranPlayerControlsState extends State<QuranPlayerControls> {
               child: Text(
                 '${speed}x',
                 style: TextStyle(
-                  color: widget.audioPlayer.playbackSpeed == speed 
-                      ? Theme.of(context).primaryColor 
+                  color: widget.audioPlayer.playbackSpeed == speed
+                      ? Theme.of(context).primaryColor
                       : null,
                 ),
               ),
@@ -455,7 +467,7 @@ class _QuranPlayerControlsState extends State<QuranPlayerControls> {
         );
       },
     );
-    
+
     if (speed != null) {
       await widget.audioPlayer.setPlaybackSpeed(speed);
     }

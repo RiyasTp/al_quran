@@ -16,7 +16,7 @@ List<TextSpan> ayaTextSpanBuilder(BuildContext context, Aya aya,
       TextSpan(
         text: char,
         style: TextStyle(
-          color: specialSymbols.contains(char) ? Colors.red : null,
+          color: specialSymbols.contains(char) ? Colors.red : Theme.of(context).colorScheme.primary,
           fontFamily: "Hafs",
           fontSize: 26,
         ),

@@ -1,12 +1,8 @@
 import 'package:al_quran/features/al_quran/models/quran_models.dart';
-import 'package:al_quran/features/al_quran/screens/page_wise_screen.dart';
 import 'package:al_quran/features/al_quran/screens/quran_data_wise_screen.dart';
 import 'package:al_quran/features/al_quran/screens/sura_aya_wise_screen.dart';
 import 'package:al_quran/features/al_quran/view_models/quran_view_model.dart';
 import 'package:al_quran/features/al_quran/widgets/constant_widgets.dart';
-import 'package:al_quran/features/bookmarks/book_marks_screen.dart';
-import 'package:al_quran/features/notes/notes_screen.dart';
-import 'package:al_quran/utils/route/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -175,6 +171,7 @@ class QuraDataListView extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => QuranDataView(
                   type: type,
+                  initialPage: item.index - 1,
                 ),
               ),
             );

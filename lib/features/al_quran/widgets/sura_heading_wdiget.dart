@@ -14,13 +14,14 @@ class SuraHeadingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical : 16, horizontal: 8),
-      child: Text(
-        'سورة'
-        " "
-        "${sura.name}",
-        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+      child: Text("a ${sura.index.toString().padLeft(3, '0')} surah",
+      textDirection: TextDirection.rtl,
+        style: Theme.of(context).textTheme.displayLarge?.copyWith(
+          fontFamily: "Sura Names",
+        ),
         textAlign: TextAlign.center,
       ),
     );
   }
+  
 }

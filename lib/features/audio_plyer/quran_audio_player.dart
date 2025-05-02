@@ -109,6 +109,8 @@ class QuranAudioPlayer extends ChangeNotifier {
     }
   }
 
+  get canShowControls => _currentAyas != null && _currentSura != null;
+
   Future<void> playNextAya() async {
     _currentAyaIndex++;
     notifyListeners();

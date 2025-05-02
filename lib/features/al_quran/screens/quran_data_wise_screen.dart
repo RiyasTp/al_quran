@@ -10,7 +10,8 @@ import 'package:provider/provider.dart';
 
 class QuranDataView extends StatefulWidget {
   final QuranDataType type;
-  const QuranDataView({super.key, required this.type});
+  final int? initialPage;
+  const QuranDataView({super.key, required this.type, this.initialPage});
   @override
   createState() => _QuranDataViewState();
 }
@@ -22,8 +23,8 @@ class _QuranDataViewState extends State<QuranDataView> {
   @override
   void initState() {
     super.initState();
-    _currentPage = 0;
-    _pageController = PageController();
+    _currentPage = widget.initialPage ?? 0;
+    _pageController = PageController(initialPage: _currentPage);
   }
 
   @override
@@ -34,7 +35,7 @@ class _QuranDataViewState extends State<QuranDataView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Page ${_currentPage + 1}'),
+        title: Text('${widget.type.typeName} ${_currentPage + 1}'),
       ),
       body: Directionality(
         textDirection: TextDirection.rtl,
@@ -73,7 +74,7 @@ class _QuranDataViewState extends State<QuranDataView> {
         // Add sura title if this is the first ayah
         if (startAya == 1) {
           widgets.add(
-             SuraHeadingWidget(sura: sura),
+            SuraHeadingWidget(sura: sura),
           );
 
           // Add Bismillah if not Surah 1 or 9
@@ -87,8 +88,6 @@ class _QuranDataViewState extends State<QuranDataView> {
         // Add ayahs to RichText
         for (final aya in sura.ayas) {
           if (aya.index >= startAya && endAya != null && aya.index <= endAya) {
-            log("current index ${aya.index.toString()}");
-            log("current index ${aya.text.toString()}");
             ayahTextSpans.addAll(ayaTextSpanBuilder(context, aya));
             ayahTextSpans.add(TextSpan(text: ' ')); // Add space between ayahs
           }
@@ -155,7 +154,7 @@ class _QuranDataViewState extends State<QuranDataView> {
                         )
                     : null,
               ),
-              Text('Page ${_currentPage + 1} of ${pages.length}'),
+              Text('${widget.type.typeName} ${_currentPage + 1} of ${pages.length}'),
               IconButton(
                 icon: Icon(Icons.chevron_right),
                 onPressed: _currentPage < pages.length - 1
