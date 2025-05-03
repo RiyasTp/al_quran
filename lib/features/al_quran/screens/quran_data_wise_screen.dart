@@ -45,7 +45,9 @@ class _QuranDataViewState extends State<QuranDataView> {
           onPageChanged: (index) => setState(() => _currentPage = index),
           itemBuilder: (context, index) {
             final page = pages[index];
-            return _buildPageContent(page, quranData);
+            return QuranTypeWisePageContentBuilder(
+              page: page,
+            );
           },
         ),
       ),
@@ -53,7 +55,67 @@ class _QuranDataViewState extends State<QuranDataView> {
     );
   }
 
-  Widget _buildPageContent(QuranTypeWiseData page, List<Sura> quranData) {
+  Widget _buildPageNavigation(List<QuranTypeWiseData> pages) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: BottomAppBar(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // IconButton(
+              //   icon: Icon(Icons.onetwothree),
+              //   onPressed: () => _pageController.animateToPage(
+              //     600,
+              //     duration: Duration(milliseconds: 300),
+              //     curve: Curves.easeInOut,
+              //   ),
+              // ),
+              IconButton(
+                icon: Icon(Icons.chevron_left),
+                onPressed: _currentPage > 0
+                    ? () => _pageController.previousPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.linear,
+                        )
+                    : null,
+              ),
+              Text(
+                  '${widget.type.typeName} ${_currentPage + 1} of ${pages.length}'),
+              IconButton(
+                icon: Icon(Icons.chevron_right),
+                onPressed: _currentPage < pages.length - 1
+                    ? () => _pageController.nextPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.linear,
+                        )
+                    : null,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+}
+
+class QuranTypeWisePageContentBuilder extends StatelessWidget {
+  const QuranTypeWisePageContentBuilder({
+    super.key,
+    required this.page,
+  });
+  final QuranTypeWiseData page;
+  @override
+  Widget build(BuildContext context) {
+    final quranVM = context.watch<QuranViewModel>();
+    final quranData = quranVM.quranData;
     try {
       final widgets = <Widget>[];
       int currentSura = page.startSura;
@@ -126,54 +188,5 @@ class _QuranDataViewState extends State<QuranDataView> {
         ),
       );
     }
-  }
-
-  Widget _buildPageNavigation(List<QuranTypeWiseData> pages) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: BottomAppBar(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // IconButton(
-              //   icon: Icon(Icons.onetwothree),
-              //   onPressed: () => _pageController.animateToPage(
-              //     600,
-              //     duration: Duration(milliseconds: 300),
-              //     curve: Curves.easeInOut,
-              //   ),
-              // ),
-              IconButton(
-                icon: Icon(Icons.chevron_left),
-                onPressed: _currentPage > 0
-                    ? () => _pageController.previousPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.linear,
-                        )
-                    : null,
-              ),
-              Text('${widget.type.typeName} ${_currentPage + 1} of ${pages.length}'),
-              IconButton(
-                icon: Icon(Icons.chevron_right),
-                onPressed: _currentPage < pages.length - 1
-                    ? () => _pageController.nextPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.linear,
-                        )
-                    : null,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
   }
 }

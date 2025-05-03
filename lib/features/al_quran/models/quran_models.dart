@@ -66,6 +66,35 @@ class SuraMetaData {
   });
 }
 
+class QuranSura extends QuranTypeWiseData {
+  QuranSura({
+    required super.index,
+    required super.startSura,
+    required super.startAya,
+    super.endSura,
+    super.endAya,
+  }) : super(
+          type: QuranDataType.page,
+        );
+    factory QuranSura.sura(Sura sura) {
+    return QuranSura(
+      index: 0,
+      startSura: sura.index,
+      startAya: 1,
+      endSura: sura.index,
+      endAya: sura.ayas.last.index,
+    );
+  }
+
+  factory QuranSura.fromXml(Map<String, dynamic> xml) {
+    return QuranSura(
+      index: int.parse(xml['index']),
+      startSura: int.parse(xml['sura']),
+      startAya: int.parse(xml['aya']),
+    );
+  }
+}
+
 class QuranPage extends QuranTypeWiseData {
   QuranPage({
     required super.index,
