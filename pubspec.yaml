@@ -39,6 +39,7 @@ dependencies:
   just_audio: ^0.9.34  # Audio playback
   audio_session: ^0.1.13  # Audio session management
   dio: ^5.8.0+1
+  shared_preferences: ^2.5.3
 
 
 dev_dependencies:

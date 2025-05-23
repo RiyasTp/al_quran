@@ -45,7 +45,6 @@ class _QuranScreenState extends State<QuranScreen> {
                   quranMetaData: quranMetaData,
                   quranTranslationData: quranTranslationData),
             ],
-            leading: Icon(Icons.menu),
             title: Text(
               'Al Quran',
               style: TextStyle(color: null),

@@ -119,15 +119,8 @@ class QuranTypeWisePageContentBuilder extends StatelessWidget {
     try {
       final widgets = <Widget>[];
       int currentSura = page.startSura;
-
-      // Get the starting sura
-      log(
-        '${page.startSura} ${page.startAya} ${page.endSura} ${page.endAya}',
-      );
       while (currentSura <= (page.endSura!)) {
         final ayahTextSpans = <InlineSpan>[]; // Changed to InlineSpan
-
-        log(currentSura.toString());
         var sura = quranData.firstWhere((s) => s.index == currentSura);
         final startAya = (currentSura == page.startSura) ? page.startAya : 1;
         final endAya =

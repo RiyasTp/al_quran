@@ -4,18 +4,25 @@ import 'package:al_quran/features/al_quran/screens/quran_home_screen.dart';
 import 'package:al_quran/features/al_quran/view_models/quran_view_model.dart';
 import 'package:al_quran/features/bookmarks/book_marks_screen.dart';
 import 'package:al_quran/features/notes/notes_screen.dart';
+import 'package:al_quran/features/settings/settings_screen.dart';
+import 'package:al_quran/features/settings/settings_view_model.dart';
 import 'package:al_quran/utils/route/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final settingsVM = AppSettingsViewModel();
+  await settingsVM.loadSettings();
+
   final quranVM = QuranViewModel();
   await quranVM.initQuranViewModel();
 
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => quranVM),
+      ChangeNotifierProvider(create: (_) => settingsVM),
     ],
     builder: (context, _) => const MyApp(),
   ));
@@ -30,8 +37,46 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: MyRouter.navigatorKey,
+      debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.light,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      home: MainScaffold(),
+    );
+  }
+}
+
+class MainScaffold extends StatefulWidget {
+  const MainScaffold({
+    super.key,
+  });
+
+  @override
+  State<MainScaffold> createState() => _MainScaffoldState();
+}
+
+class _MainScaffoldState extends State<MainScaffold> {
+  // In your main app or settings screen
+  void _showSettingsBottomSheet() async {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return SettingsBottomSheet();
+      },
+    );
+  }
+
   int _currentIndex = 0;
   void _onItemTapped(int index) {
+    if (index == 3) {
+      _showSettingsBottomSheet();
+      return;
+    }
     setState(() {
       _currentIndex = index;
     });
@@ -45,8 +90,7 @@ class _MyAppState extends State<MyApp> {
         return const BookmarksPage();
       case 2:
         return const NotesPage();
-      case 3:
-        return const QuranScreen();
+     
       default:
         return const QuranScreen();
     }
@@ -54,28 +98,21 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: MyRouter.navigatorKey,
-      debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.light,
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      home: Scaffold(
-        body: _getCurrentPage(),
-        bottomNavigationBar: BottomNavigationBar(
-            onTap: _onItemTapped,
-            currentIndex: _currentIndex,
-            items: [
-              BottomNavigationBarItem(
-                  label: 'Home', icon: Icon(Icons.home_filled)),
-              BottomNavigationBarItem(
-                  label: 'Bookmarks', icon: Icon(Icons.bookmark_rounded)),
-              BottomNavigationBarItem(
-                  label: 'Notes', icon: Icon(Icons.sticky_note_2_rounded)),
-              BottomNavigationBarItem(
-                  label: 'Settings', icon: Icon(Icons.settings_rounded)),
-            ]),
-      ),
+    return Scaffold(
+      body: _getCurrentPage(),
+      bottomNavigationBar: BottomNavigationBar(
+          onTap: _onItemTapped,
+          currentIndex: _currentIndex,
+          items: [
+            BottomNavigationBarItem(
+                label: 'Home', icon: Icon(Icons.home_filled)),
+            BottomNavigationBarItem(
+                label: 'Bookmarks', icon: Icon(Icons.bookmark_rounded)),
+            BottomNavigationBarItem(
+                label: 'Notes', icon: Icon(Icons.sticky_note_2_rounded)),
+            BottomNavigationBarItem(
+                label: 'Settings', icon: Icon(Icons.settings_rounded)),
+          ]),
     );
   }
 }
@@ -93,12 +130,5 @@ String toArabicNumerals(int number) {
 
 const nonBreakSpaceChar = ' '; // 	&nbsp; U+00A0
 
-class AppSettings {
-  var themeMode = ThemeMode.system;
-  var quranFontFamily = 'Hafs';
-  var fontSizeFactor = 1;
-  var arabicFontFactor = 1;
-  var translationFontFactor = 1;
-  var showTranslation = true;
-  var translation = "Sahih International";
-}
+
+

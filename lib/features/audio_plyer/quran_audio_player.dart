@@ -257,7 +257,7 @@ class QuranDownloadManager {
         targetDir: surahDir,
         onProgress: (count, total) {
           // Calculate overall progress
-          final progress = /* logic to calculate overall progress */ 0;
+          final progress = 0;
           onProgress?.call(progress, total);
         },
       ));

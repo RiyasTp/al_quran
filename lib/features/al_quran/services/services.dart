@@ -10,7 +10,6 @@ List<SuraTranslation> parseQuranTranslation(String xmlString) {
   final quranData = document.findElements('quran').first;
 
   for (final suraElement in quranData.findElements('sura')) {
-    log(suraElement.getAttribute('name').toString());
     final ayas = <AyaTranslation>[];
 
     for (final ayaElement in suraElement.findElements('aya')) {
@@ -38,7 +37,6 @@ List<Sura> parseQuran(String xmlString) {
   final quranData = document.findElements('quran').first;
 
   for (final suraElement in quranData.findElements('sura')) {
-    log(suraElement.getAttribute('name').toString());
     final ayas = <Aya>[];
 
     for (final ayaElement in suraElement.findElements('aya')) {

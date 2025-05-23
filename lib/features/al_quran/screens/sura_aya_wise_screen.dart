@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:al_quran/features/al_quran/models/quran_models.dart';
 import 'package:al_quran/features/al_quran/screens/quran_data_wise_screen.dart';
 import 'package:al_quran/features/al_quran/screens/sheets_and_alerts/copy_aya_bottom_sheet.dart';
@@ -11,6 +9,7 @@ import 'package:al_quran/features/audio_plyer/quran_audio_player.dart';
 import 'package:al_quran/features/bookmarks/book_marks_db_helper.dart';
 import 'package:al_quran/features/notes/db_helper.dart';
 import 'package:al_quran/features/notes/edit_notes_bottom_sheet.dart';
+import 'package:al_quran/features/settings/settings_screen.dart';
 import 'package:al_quran/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -105,7 +104,7 @@ class _AyahPageState extends State<AyahPage> {
                   Text(widget.sura.index.toString().padLeft(3, '0'),
                       style: Theme.of(context)
                           .textTheme
-                          .displaySmall
+                          .headlineMedium
                           ?.copyWith(fontFamily: 'Sura Names')),
                 ],
               ),
@@ -113,11 +112,10 @@ class _AyahPageState extends State<AyahPage> {
           ),
           actions: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text("Read Mode"),
                 Transform.scale(
-                  scale: 0.75,
+                  scale: 0.6,
                   child: Switch.adaptive(
                     value: readMode,
                     onChanged: (val) => setState(() => readMode = val),
@@ -125,8 +123,18 @@ class _AyahPageState extends State<AyahPage> {
                 ),
               ],
             ),
-            IconButton(onPressed: () {}, icon: Icon(Icons.settings_outlined)),
-            DownloadButton(sura: widget.sura),
+            IconButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) {
+                      return SettingsBottomSheet();
+                    },
+                  );
+                },
+                icon: Icon(Icons.settings_outlined)),
+            // DownloadButton(sura: widget.sura),
           ],
         ),
         body: readMode
@@ -566,7 +574,6 @@ class DownloadButton extends StatelessWidget {
         surahNumber: sura.index,
         reciter: 'afasy',
         onProgress: (count, total) {
-          log('Download progress: $count/$total');
           // Show download progress
           scaffold.showSnackBar(SnackBar(
             content: LinearProgressIndicator(value: count / total),
