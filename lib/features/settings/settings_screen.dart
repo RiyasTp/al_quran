@@ -43,7 +43,6 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
             SizedBox(height: 16),
             _buildAppSettings(),
             Divider(height: 32),
-
             _buildFontSettings(),
             Divider(height: 32),
             _buildTafseerSettings(),
@@ -89,7 +88,7 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
           },
         ),
         SizedBox(height: 16),
-        Text('Theme', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Theme'),
         SizedBox(height: 8),
         SegmentedButton<ThemeMode>(
           segments: const [
@@ -129,7 +128,8 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Font Settings', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Quran Font Settings',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         SizedBox(height: 12),
         _buildFontFamilySelector(),
         SizedBox(height: 16),
@@ -147,48 +147,15 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
           },
         ),
         SizedBox(height: 16),
-        _buildFontSizeSlider(
-          label: 'Tafseer Font Size',
-          value: _currentSettings.tafseerFontSize,
-          min: .5,
-          max: 2,
-          onChanged: (value) {
-            setState(() {
-              _currentSettings =
-                  _currentSettings.copyWith(tafseerFontSize: value);
-            });
-            onSettingsChanged(_currentSettings);
-          },
-        ),
-        SizedBox(height: 16),
-        _buildFontSizeSlider(
-          label: 'App Font Size',
-          value: _currentSettings.appFontSize,
-          min: .5,
-          max: 2,
-          onChanged: (value) {
-            setState(() {
-              _currentSettings = _currentSettings.copyWith(appFontSize: value);
-            });
-            onSettingsChanged(_currentSettings);
-          },
-        ),
       ],
     );
   }
 
   Widget _buildFontFamilySelector() {
-    final fontFamilies = [
-      'Hafs',
-      'Amiri',
-      'KFGQPC',
-      'Scheherazade',
-      'Traditional Arabic',
-    ];
-
+    final fontFamilies = _currentSettings.allFontFamilies;
     return DropdownButtonFormField<String>(
       value: fontFamilies.firstWhere(
-          (family) => family == _currentSettings.fontFamily,
+          (family) => family == _currentSettings.quranFontFamily,
           orElse: () => fontFamilies.first),
       decoration: InputDecoration(
         labelText: 'Font Family',
@@ -243,21 +210,15 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
   }
 
   Widget _buildTafseerSettings() {
-    final tafseerAuthors = [
-      'Ibn Kathir',
-      'Al-Jalalayn',
-      'Al-Saadi',
-      'Al-Tabari',
-      'Al-Qurtubi',
-    ];
+    final tafseerAuthors = _currentSettings.allTranslationAuthors;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Tafseer Settings', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Translation Settings', style: TextStyle(fontWeight: FontWeight.bold)),
         SizedBox(height: 12),
         SwitchListTile(
-          title: Text('Show Tafseer'),
+          title: Text('Show Translation'),
           value: _currentSettings.showTaranslation,
           onChanged: (value) {
             setState(() {
@@ -274,7 +235,7 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
               (author) => author == _currentSettings.translationAuthor,
               orElse: () => tafseerAuthors.first),
           decoration: InputDecoration(
-            labelText: 'Tafseer Author',
+            labelText: 'Translation Author',
             border: OutlineInputBorder(),
           ),
           items: tafseerAuthors.map((author) {
@@ -293,6 +254,21 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
             }
           },
         ),
+        SizedBox(height: 8),
+        _buildFontSizeSlider(
+          label: 'Translation Font Size',
+          value: _currentSettings.translationFontSize,
+          min: .5,
+          max: 2,
+          onChanged: (value) {
+            setState(() {
+              _currentSettings =
+                  _currentSettings.copyWith(tafseerFontSize: value);
+            });
+            onSettingsChanged(_currentSettings);
+          },
+        ),
+        SizedBox(height: 16),
       ],
     );
   }

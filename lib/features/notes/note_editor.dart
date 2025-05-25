@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:al_quran/features/al_quran/widgets/constant_widgets.dart';
 import 'package:al_quran/features/notes/db_helper.dart';
 import 'package:al_quran/features/notes/notes_model.dart';
-import 'package:al_quran/main.dart';
 import 'package:flutter/material.dart';
 
 class NoteEditorDialog extends StatefulWidget {

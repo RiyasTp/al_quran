@@ -1,12 +1,14 @@
 // ignore_for_file: constant_identifier_names
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 const _MAX_FONT_SIZE = 2.0;
 const MIN_FONT_SIZE = 0.5;
 const _DEFAULT_FONT_SIZE = 1.0;
 
-const DEFAULT_FONT_FAMILY = 'Hafs';
+const DEFAULT_QURAN_FONT_FAMILY = 'Hafs';
 const ALL_FONT_FAMILIES = [
   'Hafs',
 ];
@@ -25,30 +27,37 @@ const ALL_RECITATIONS = [
 class AppSettings {
   ThemeMode _themeMode = ThemeMode.system;
   double _quranFontSize = _DEFAULT_FONT_SIZE;
-  double _tafseerFontSize = _DEFAULT_FONT_SIZE;
+  double _translationFontSize = _DEFAULT_FONT_SIZE;
   double _appFontSize = _DEFAULT_FONT_SIZE;
-  String _fontFamily = 'Hafs';
+  String _quranFontFamily = DEFAULT_QURAN_FONT_FAMILY;
   bool _showTaranslation = true;
-  String _translationAuthor = 'Ibn Kathir';
+  String _translationAuthor = DEFAULT_TRANSLATION_AUTHOR;
+
+  List<String> get allRecitations => ALL_RECITATIONS;
+  List<String> get allTranslationAuthors => ALL_TRANSLATION_AUTHORS;
+  List<String> get allFontFamilies => ALL_FONT_FAMILIES;
 
   AppSettings({
-    double quranFontSize = 1,
-    double tafseerFontSize = 1,
-    double appFontSize = 1,
-    String fontFamily = 'Hafs',
-    bool showTaranslation = true,
-    String translationAuthor = 'Ibn Kathir',
-    ThemeMode themeMode = ThemeMode.system,
-  })  : _quranFontSize = quranFontSize,
-        _tafseerFontSize = tafseerFontSize,
-        _appFontSize = appFontSize,
-        _fontFamily = fontFamily,
-        _showTaranslation = showTaranslation,
-        _translationAuthor = translationAuthor,
-        _themeMode = themeMode;
+    double? quranFontSize = 1,
+    double? translationFontSize = 1,
+    double? appFontSize = 1,
+    String? quranFontFamily = DEFAULT_QURAN_FONT_FAMILY,
+    bool? showTaranslation = true,
+    String? translationAuthor = DEFAULT_TRANSLATION_AUTHOR,
+    ThemeMode? themeMode = ThemeMode.system,
+  })  : _quranFontSize = quranFontSize ?? _DEFAULT_FONT_SIZE,
+        _translationFontSize = translationFontSize ?? _DEFAULT_FONT_SIZE,
+        _appFontSize = appFontSize ?? _DEFAULT_FONT_SIZE,
+        _quranFontFamily = quranFontFamily ?? DEFAULT_QURAN_FONT_FAMILY,
+        _showTaranslation = showTaranslation ?? true,
+        _translationAuthor = translationAuthor ?? DEFAULT_TRANSLATION_AUTHOR,
+        _themeMode = themeMode ?? ThemeMode.system;
 
   ThemeMode get themeMode => _themeMode;
-  set themeMode(ThemeMode value) => _themeMode = value;
+  set themeMode(ThemeMode value) {
+    log("Setting theme mode to: $value");
+    _themeMode = value;
+  }
 
   double get quranFontSize => _quranFontSize;
   set quranFontSize(double value) {
@@ -60,14 +69,14 @@ class AppSettings {
     _quranFontSize = value;
   }
 
-  double get tafseerFontSize => _tafseerFontSize;
-  set tafseerFontSize(double value) {
+  double get translationFontSize => _translationFontSize;
+  set translationFontSize(double value) {
     if (value < MIN_FONT_SIZE) {
       value = MIN_FONT_SIZE;
     } else if (value > _MAX_FONT_SIZE) {
       value = _MAX_FONT_SIZE;
     }
-    _tafseerFontSize = value;
+    _translationFontSize = value;
   }
 
   double get appFontSize => _appFontSize;
@@ -80,14 +89,29 @@ class AppSettings {
     _appFontSize = value;
   }
 
-  String get fontFamily => _fontFamily;
-  set fontFamily(String value) => _fontFamily = value;
+  String get quranFontFamily => _quranFontFamily;
+  set quranFontFamily(String value) {
+    if (!ALL_FONT_FAMILIES.contains(value)) {
+      log("Invalid font family: $value. Using default: $DEFAULT_QURAN_FONT_FAMILY");
+      value = DEFAULT_QURAN_FONT_FAMILY;
+    }
+    _quranFontFamily = value;
+  }
 
   bool get showTaranslation => _showTaranslation;
-  set showTaranslation(bool value) => _showTaranslation = value;
+  set showTaranslation(bool value) {
+    log("Setting showTaranslation to: $value");
+    _showTaranslation = value;
+  }
 
   String get translationAuthor => _translationAuthor;
-  set translationAuthor(String value) => _translationAuthor = value;
+  set translationAuthor(String value) {
+    if (!ALL_TRANSLATION_AUTHORS.contains(value)) {
+      log("Invalid translation author: $value. Using default: $DEFAULT_TRANSLATION_AUTHOR");
+      value = DEFAULT_TRANSLATION_AUTHOR;
+    }
+    _translationAuthor = value;
+  }
 
   AppSettings copyWith({
     double? quranFontSize,
@@ -100,9 +124,9 @@ class AppSettings {
   }) {
     return AppSettings(
       quranFontSize: quranFontSize ?? _quranFontSize,
-      tafseerFontSize: tafseerFontSize ?? _tafseerFontSize,
+      translationFontSize: tafseerFontSize ?? _translationFontSize,
       appFontSize: appFontSize ?? _appFontSize,
-      fontFamily: fontFamily ?? _fontFamily,
+      quranFontFamily: fontFamily ?? _quranFontFamily,
       showTaranslation: showTaranslation ?? _showTaranslation,
       translationAuthor: translationAuthor ?? _translationAuthor,
       themeMode: themeMode ?? _themeMode,

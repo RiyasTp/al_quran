@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:al_quran/features/al_quran/models/quran_models.dart';
 import 'package:xml/xml.dart' as xml;
 
@@ -287,7 +285,7 @@ List<T> parseQuranTypeWise<T extends QuranTypeWiseData>(
       }
     }
 
-    items.add(item as T);
+    items.add(item);
   }
 
   return items;

@@ -61,9 +61,9 @@ class _AyahPageState extends State<AyahPage> {
     }
   }
 
-  Future<void> _playSurahFromStart() async {
-    await audioPlayer.playSurah(widget.sura);
-  }
+  // Future<void> _playSurahFromStart() async {
+  //   await audioPlayer.playSurah(widget.sura);
+  // }
 
   Future<void> _playAya(Aya aya, int index) async {
     audioPlayer.playSurah(widget.sura, startAya: index);
@@ -155,7 +155,7 @@ class _AyahPageState extends State<AyahPage> {
                     final translationFontFactor = context
                         .watch<AppSettingsViewModel>()
                         .settings
-                        .tafseerFontSize;
+                        .translationFontSize;
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.end,

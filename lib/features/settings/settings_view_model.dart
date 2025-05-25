@@ -22,24 +22,23 @@ class AppSettingsViewModel extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('quranFontSize', settings.quranFontSize);
-    await prefs.setDouble('tafseerFontSize', settings.tafseerFontSize);
+    await prefs.setDouble('translationFontSize', settings.translationFontSize);
     await prefs.setDouble('appFontSize', settings.appFontSize);
-    await prefs.setString('fontFamily', settings.fontFamily);
+    await prefs.setString('quranFontFamily', settings.quranFontFamily);
     await prefs.setString('themeMode', settings.themeMode.toString());
-
-    await prefs.setString('tafseerAuthor', settings.translationAuthor);
+    await prefs.setString('translationAuthor', settings.translationAuthor);
   }
 
   Future<AppSettings> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     return _settings = AppSettings(
-      quranFontSize: prefs.getDouble('quranFontSize') ?? 1,
-      tafseerFontSize: prefs.getDouble('tafseerFontSize') ?? 1,
-      appFontSize: prefs.getDouble('appFontSize') ?? 1,
-      fontFamily: prefs.getString('fontFamily') ?? 'UthmanicHafs',
+      quranFontSize: prefs.getDouble('quranFontSize'),
+      translationFontSize: prefs.getDouble('translationFontSize'),
+      appFontSize: prefs.getDouble('appFontSize'),
+      quranFontFamily: prefs.getString('quranFontFamily') ,
       themeMode: _stringToThemeMode(prefs.getString('themeMode')),
-      showTaranslation: prefs.getBool('showTafseer') ?? true,
-      translationAuthor: prefs.getString('tafseerAuthor') ?? 'Ibn Kathir',
+      showTaranslation: prefs.getBool('showTaranslation'),
+      translationAuthor: prefs.getString('translationAuthor'),
     );
   }
 

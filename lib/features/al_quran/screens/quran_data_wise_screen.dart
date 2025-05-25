@@ -32,7 +32,7 @@ class _QuranDataViewState extends State<QuranDataView> {
   Widget build(BuildContext context) {
     final quranVM = context.watch<QuranViewModel>();
     var pages = quranVM.getDataFromType(widget.type);
-    var quranData = quranVM.quranData;
+    // var quranData = quranVM.quranData;
 
     return Scaffold(
       appBar: AppBar(
