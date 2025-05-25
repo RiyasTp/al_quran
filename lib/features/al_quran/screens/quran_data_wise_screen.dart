@@ -5,6 +5,7 @@ import 'package:al_quran/features/al_quran/view_models/quran_view_model.dart';
 import 'package:al_quran/features/al_quran/widgets/aya_text_span_builder.dart';
 import 'package:al_quran/features/al_quran/widgets/bismillah_widget.dart';
 import 'package:al_quran/features/al_quran/widgets/sura_heading_wdiget.dart';
+import 'package:al_quran/features/settings/settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -116,6 +117,8 @@ class QuranTypeWisePageContentBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     final quranVM = context.watch<QuranViewModel>();
     final quranData = quranVM.quranData;
+    final quranFontFactor = context.watch<AppSettingsViewModel>().settings.quranFontSize;
+
     try {
       final widgets = <Widget>[];
       int currentSura = page.startSura;
@@ -151,6 +154,7 @@ class QuranTypeWisePageContentBuilder extends StatelessWidget {
           Directionality(
             textDirection: TextDirection.rtl,
             child: RichText(
+              textScaler: TextScaler.linear(quranFontFactor),
               textAlign: TextAlign.justify,
               text: TextSpan(
                 style: TextStyle(color: Colors.black),

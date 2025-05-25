@@ -39,12 +39,23 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    final settingsVM = Provider.of<AppSettingsViewModel>(context);
+    final themeMode = settingsVM.settings.themeMode;
     return MaterialApp(
       navigatorKey: MyRouter.navigatorKey,
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.light,
+      themeMode: themeMode,
       theme: lightTheme,
       darkTheme: darkTheme,
+      builder: (context, child) {
+        final settingsVM = Provider.of<AppSettingsViewModel>(context);
+        final textScale = settingsVM.settings.appFontSize;
+        return MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(textScale)),
+          child: child!,
+        );
+      },
       home: MainScaffold(),
     );
   }
@@ -90,7 +101,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         return const BookmarksPage();
       case 2:
         return const NotesPage();
-     
+
       default:
         return const QuranScreen();
     }
@@ -129,6 +140,3 @@ String toArabicNumerals(int number) {
 }
 
 const nonBreakSpaceChar = ' '; // 	&nbsp; U+00A0
-
-
-

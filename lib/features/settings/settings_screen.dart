@@ -41,6 +41,9 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
           children: [
             _buildHeader(),
             SizedBox(height: 16),
+            _buildAppSettings(),
+            Divider(height: 32),
+
             _buildFontSettings(),
             Divider(height: 32),
             _buildTafseerSettings(),
@@ -67,6 +70,61 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
     );
   }
 
+  Widget _buildAppSettings() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('App Settings', style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 12),
+        _buildFontSizeSlider(
+          label: 'App Font Size',
+          value: _currentSettings.appFontSize,
+          min: .5,
+          max: 2,
+          onChanged: (value) {
+            setState(() {
+              _currentSettings = _currentSettings.copyWith(appFontSize: value);
+            });
+            onSettingsChanged(_currentSettings);
+          },
+        ),
+        SizedBox(height: 16),
+        Text('Theme', style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 8),
+        SegmentedButton<ThemeMode>(
+          segments: const [
+            ButtonSegment(
+              value: ThemeMode.light,
+              label: Text('Light'),
+              icon: Icon(Icons.light_mode),
+            ),
+            ButtonSegment(
+              value: ThemeMode.dark,
+              label: Text('Dark'),
+              icon: Icon(Icons.dark_mode),
+            ),
+            ButtonSegment(
+              value: ThemeMode.system,
+              label: Text('System'),
+              icon: Icon(Icons.settings),
+            ),
+          ],
+          selected: <ThemeMode>{_currentSettings.themeMode},
+          onSelectionChanged: (Set<ThemeMode> newSelection) {
+            if (newSelection.isNotEmpty) {
+              setState(() {
+                _currentSettings = _currentSettings.copyWith(
+                  themeMode: newSelection.first,
+                );
+              });
+              onSettingsChanged(_currentSettings);
+            }
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildFontSettings() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,8 +136,8 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
         _buildFontSizeSlider(
           label: 'Quran Font Size',
           value: _currentSettings.quranFontSize,
-          min: 16,
-          max: 32,
+          min: .5,
+          max: 2,
           onChanged: (value) {
             setState(() {
               _currentSettings =
@@ -92,22 +150,22 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
         _buildFontSizeSlider(
           label: 'Tafseer Font Size',
           value: _currentSettings.tafseerFontSize,
-          min: 12,
-          max: 24,
+          min: .5,
+          max: 2,
           onChanged: (value) {
             setState(() {
               _currentSettings =
                   _currentSettings.copyWith(tafseerFontSize: value);
             });
-           onSettingsChanged(_currentSettings);
+            onSettingsChanged(_currentSettings);
           },
         ),
         SizedBox(height: 16),
         _buildFontSizeSlider(
           label: 'App Font Size',
           value: _currentSettings.appFontSize,
-          min: 12,
-          max: 20,
+          min: .5,
+          max: 2,
           onChanged: (value) {
             setState(() {
               _currentSettings = _currentSettings.copyWith(appFontSize: value);
@@ -129,9 +187,9 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
     ];
 
     return DropdownButtonFormField<String>(
-      value: fontFamilies
-          .firstWhere((family) => family == _currentSettings.fontFamily,
-              orElse: () => fontFamilies.first),
+      value: fontFamilies.firstWhere(
+          (family) => family == _currentSettings.fontFamily,
+          orElse: () => fontFamilies.first),
       decoration: InputDecoration(
         labelText: 'Font Family',
         border: OutlineInputBorder(),
@@ -166,18 +224,18 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
         Text(label),
         Row(
           children: [
-            Text('${min.toInt()}'),
+            Text('$min x'),
             Expanded(
               child: Slider(
                 value: value,
                 min: min,
-                 max: max,
-                divisions: (max - min).toInt(),
-                label: value.toStringAsFixed(1),
+                max: max,
+                divisions: ((max - min) / .25).toInt(),
+                label: value.toStringAsFixed(2),
                 onChanged: onChanged,
               ),
             ),
-            Text('${max.toInt()}'),
+            Text('$max x'),
           ],
         ),
       ],
@@ -212,9 +270,9 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
         SizedBox(height: 8),
         DropdownButtonFormField<String>(
           // value: _currentSettings.translationAuthor,
-          value: tafseerAuthors
-              .firstWhere((author) => author == _currentSettings.translationAuthor,
-                  orElse: () => tafseerAuthors.first),
+          value: tafseerAuthors.firstWhere(
+              (author) => author == _currentSettings.translationAuthor,
+              orElse: () => tafseerAuthors.first),
           decoration: InputDecoration(
             labelText: 'Tafseer Author',
             border: OutlineInputBorder(),

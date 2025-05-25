@@ -10,6 +10,7 @@ import 'package:al_quran/features/bookmarks/book_marks_db_helper.dart';
 import 'package:al_quran/features/notes/db_helper.dart';
 import 'package:al_quran/features/notes/edit_notes_bottom_sheet.dart';
 import 'package:al_quran/features/settings/settings_screen.dart';
+import 'package:al_quran/features/settings/settings_view_model.dart';
 import 'package:al_quran/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -149,13 +150,22 @@ class _AyahPageState extends State<AyahPage> {
 
                     var richText = AyaRichText(aya: aya);
 
+                    var settings2 =
+                        context.read<AppSettingsViewModel>().settings;
+                    final translationFontFactor = context
+                        .watch<AppSettingsViewModel>()
+                        .settings
+                        .tafseerFontSize;
+
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         const SizedBox(height: 10),
                         if (aya.bismillah != null) BismillahWidget(),
                         richText,
-                        Text(ayaTranslation.text),
+                        if (settings2.showTaranslation)
+                          Text(ayaTranslation.text,
+                              textScaler: TextScaler.linear(translationFontFactor)),
                         const SizedBox(height: 4),
                         Container(
                           margin: EdgeInsets.symmetric(vertical: 4),
