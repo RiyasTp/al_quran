@@ -88,7 +88,6 @@ void showCopyBottomSheet(
                                   text: "  $arabicReference",
                                   style: const TextStyle(
                                     fontSize: 16,
-                                    color: Colors.black,
                                   ),
                                 ),
                                 if (copyArabic && copyTranslation)
@@ -100,7 +99,6 @@ void showCopyBottomSheet(
                                   text: "\n$translationText",
                                   style: const TextStyle(
                                     fontSize: 16,
-                                    color: Colors.black,
                                   ),
                                 ),
                                
@@ -108,7 +106,6 @@ void showCopyBottomSheet(
                                   text: "\n📍 $translationReference",
                                   style: const TextStyle(
                                     fontSize: 16,
-                                    color: Colors.black,
                                   ),
                                 ),
                               ]),

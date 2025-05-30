@@ -1,6 +1,11 @@
+import 'dart:developer';
+
+import 'package:al_quran/features/al_quran/screens/sura_aya_wise_screen.dart';
+import 'package:al_quran/features/al_quran/view_models/quran_view_model.dart';
 import 'package:al_quran/features/bookmarks/book_mark_model.dart';
 import 'package:al_quran/features/bookmarks/book_marks_db_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class BookmarksPage extends StatefulWidget {
   const BookmarksPage({super.key});
@@ -34,6 +39,11 @@ class _BookmarksPageState extends State<BookmarksPage> {
 
   @override
   Widget build(BuildContext context) {
+    final quranVM = context.read<QuranViewModel>();
+
+    var quranData = quranVM.quranData;
+    final quranMetaData = quranVM.quranMetaData;
+    final quranTranslationData = quranVM.quranTranslationData;
     return Scaffold(
       appBar: AppBar(title: Text('Bookmarks')),
       body: RefreshIndicator(
@@ -55,6 +65,10 @@ class _BookmarksPageState extends State<BookmarksPage> {
               itemBuilder: (context, index) {
                 final bookmark = bookmarks[index];
                 return ListTile(
+                  leading: Icon(
+                    bookmark.type == 'surah' ? Icons.book : Icons.bookmark,
+                    color: Theme.of(context).primaryColor,
+                  ),
                   title: Text(
                     bookmark.type == 'surah'
                         ? 'Surah ${bookmark.surahNumber}'
@@ -71,7 +85,23 @@ class _BookmarksPageState extends State<BookmarksPage> {
                       _refreshBookmarks();
                     },
                   ),
-                  onTap: () {},
+                 onTap: () {
+                    log('Bookmark tapped: ${bookmark.type} ${bookmark.surahNumber}:${bookmark.ayahNumber}');
+                    var i = bookmark.surahNumber - 1;
+                    final sura = quranData[i];
+                    final suraMetaData = quranMetaData[i];
+                    final suraTranslation = quranTranslationData[i];
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AyahPage(
+                            sura: sura,
+                            suraMetaData: suraMetaData,
+                            suraTranslation: suraTranslation,
+                            initialAyahIndex: bookmark.ayahNumber),
+                      ),
+                    );
+                  },
                 );
               },
             );

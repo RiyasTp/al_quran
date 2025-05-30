@@ -57,7 +57,7 @@ class _AyahPageState extends State<AyahPage> {
             .indexWhere((aya) => aya.index == widget.initialAyahIndex)
         : 0;
     if (initialIndex > 0) {
-      _jumpToAyah(audioPlayer.currentAyyaIndex);
+      _jumpToAyah(initialIndex);
     }
   }
 
@@ -214,7 +214,7 @@ class _AyahPageState extends State<AyahPage> {
                                             toArabicNumerals(aya.index),
                                         translationText: ayaTranslation.text,
                                         translationReference:
-                                            "Surah ${widget.suraMetaData.tname} (${widget.suraMetaData.ename})  ${widget.sura.index} : ${aya.index}",
+                                            "Surah ${widget.suraMetaData.tname} (${widget.suraMetaData.ename})  ${widget.sura.index} : ${aya.index} - ${context.read<AppSettingsViewModel>().settings.translationAuthor}",
                                         arabicReference:
                                             "سورة$nonBreakSpaceChar${widget.sura.name}$nonBreakSpaceChar•$nonBreakSpaceChar${toArabicNumerals(widget.sura.index)}$nonBreakSpaceChar:$nonBreakSpaceChar${toArabicNumerals(aya.index)}",
                                       );
