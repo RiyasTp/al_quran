@@ -4,19 +4,19 @@ import 'package:al_quran/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-void showNotesBottomSheet(BuildContext context,
-    {required String arabicText,
-    required String translationText,
-    required String translationReference,
-    required String arabicReference,
-    required String noteText,
-    required Future<void> Function() onEdit,
-
-    }) {
+void showNotesBottomSheet(
+  BuildContext context, {
+  required String arabicText,
+  required String translationText,
+  required String translationReference,
+  required String arabicReference,
+  required String noteText,
+  required Future<void> Function() onEdit,
+  required Future<void> Function() onOpen,
+}) {
   bool showArabic = true;
   bool showTranslation = true;
   bool copyReference = true;
-
 
   showModalBottomSheet(
     context: context,
@@ -58,7 +58,6 @@ void showNotesBottomSheet(BuildContext context,
                 divider,
                 const SizedBox(height: 8),
                 Flexible(
-                    flex: 2,
                     child: Container(
                         padding: const EdgeInsets.symmetric(
                             vertical: 8, horizontal: 4),
@@ -89,11 +88,6 @@ void showNotesBottomSheet(BuildContext context,
                 const SizedBox(height: 8),
                 // Scrollable text container with max height
                 GestureDetector(
-                  onTap: () => showCopyBottomSheet(context,
-                      arabicText: arabicText,
-                      translationText: translationText,
-                      translationReference: translationReference,
-                      arabicReference: arabicReference),
                   child: Container(
                     padding:
                         const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
@@ -103,12 +97,29 @@ void showNotesBottomSheet(BuildContext context,
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(
-                        "📍 $translationReference",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 16,
-                        ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "📍 $translationReference",
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.copy),
+                            onPressed: () => showCopyBottomSheet(context,
+                                arabicText: arabicText,
+                                translationText: translationText,
+                                translationReference: translationReference,
+                                arabicReference: arabicReference),
+                          ),
+                          IconButton(
+                              onPressed: onOpen,
+                              icon: Icon(Icons.chevron_right_rounded)),
+                        ],
                       ),
                     ),
                   ),

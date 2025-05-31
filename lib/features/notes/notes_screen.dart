@@ -1,10 +1,11 @@
 import 'package:al_quran/design_system/components/custom_card.dart';
+import 'package:al_quran/features/al_quran/models/quran_models.dart';
+import 'package:al_quran/features/al_quran/screens/sura_aya_wise_screen.dart';
 import 'package:al_quran/features/al_quran/view_models/quran_view_model.dart';
 import 'package:al_quran/features/notes/db_helper.dart';
 import 'package:al_quran/features/notes/edit_notes_bottom_sheet.dart';
 import 'package:al_quran/features/notes/notes_model.dart';
 import 'package:al_quran/features/notes/notes_view_bottom_sheet.dart';
-import 'package:al_quran/features/settings/settings_view_model.dart';
 import 'package:al_quran/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -136,7 +137,8 @@ class _NotesPageState extends State<NotesPage> {
                           ),
                         ],
                         Text(
-                            note.updatedAt.isAfter(note.createdAt.add( const Duration(seconds: 1)))
+                          note.updatedAt.isAfter(note.createdAt
+                                  .add(const Duration(seconds: 1)))
                               ? 'Updated: ${note.updatedAt.toLocal().toString().split(' ')[0]}'
                               : 'Created: ${note.createdAt.toLocal().toString().split(' ')[0]}',
                           style: TextStyle(fontSize: 12, color: Colors.grey),
@@ -147,13 +149,20 @@ class _NotesPageState extends State<NotesPage> {
                       showNotesBottomSheet(
                         context,
                         onEdit: () => onEdit(context, note),
+                        onOpen: () async => openSura(
+                          note,
+                          quranData,
+                          quranMetaData,
+                          quranTranslationData,
+                          context,
+                        ),
                         noteText: note.content,
                         arabicText: aya.text +
                             nonBreakSpaceChar +
                             toArabicNumerals(aya.index),
                         translationText: ayaTranslation.text,
                         translationReference:
-                            "Surah ${suraMetaData.tname} (${suraMetaData.ename})  ${sura.index} : ${aya.index} - ${context.read<AppSettingsViewModel>().settings.translationAuthor}",
+                            "Surah ${suraMetaData.tname} (${suraMetaData.ename})  ${sura.index} : ${aya.index}",
                         arabicReference:
                             "سورة$nonBreakSpaceChar${sura.name}$nonBreakSpaceChar•$nonBreakSpaceChar${toArabicNumerals(sura.index)}$nonBreakSpaceChar:$nonBreakSpaceChar${toArabicNumerals(aya.index)}",
                       );
@@ -169,17 +178,39 @@ class _NotesPageState extends State<NotesPage> {
   }
 
   Future<void> onDelete(Note note) async {
-     await _dbHelper.deleteNote(note.id);
+    await _dbHelper.deleteNote(note.id);
     _refreshNotes();
   }
 
   Future<void> onEdit(BuildContext context, Note note) async {
-     await showNotesEditorSheet(
+    await showNotesEditorSheet(
       context,
       surahNumber: note.surahNumber,
       ayahNumber: note.ayahNumber,
       existingNote: note,
     );
     _refreshNotes();
+  }
+
+  void openSura(
+      Note bookmark,
+      List<Sura> quranData,
+      List<SuraMetaData> quranMetaData,
+      List<SuraTranslation> quranTranslationData,
+      BuildContext context) {
+    var i = bookmark.surahNumber - 1;
+    final sura = quranData[i];
+    final suraMetaData = quranMetaData[i];
+    final suraTranslation = quranTranslationData[i];
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AyahPage(
+            sura: sura,
+            suraMetaData: suraMetaData,
+            suraTranslation: suraTranslation,
+            initialAyahIndex: bookmark.ayahNumber),
+      ),
+    );
   }
 }

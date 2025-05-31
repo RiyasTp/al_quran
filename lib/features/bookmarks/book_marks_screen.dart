@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:al_quran/features/al_quran/models/quran_models.dart';
 import 'package:al_quran/features/al_quran/screens/sura_aya_wise_screen.dart';
 import 'package:al_quran/features/al_quran/view_models/quran_view_model.dart';
 import 'package:al_quran/features/bookmarks/book_mark_model.dart';
@@ -86,27 +87,31 @@ class _BookmarksPageState extends State<BookmarksPage> {
                     },
                   ),
                  onTap: () {
-                    log('Bookmark tapped: ${bookmark.type} ${bookmark.surahNumber}:${bookmark.ayahNumber}');
-                    var i = bookmark.surahNumber - 1;
-                    final sura = quranData[i];
-                    final suraMetaData = quranMetaData[i];
-                    final suraTranslation = quranTranslationData[i];
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AyahPage(
-                            sura: sura,
-                            suraMetaData: suraMetaData,
-                            suraTranslation: suraTranslation,
-                            initialAyahIndex: bookmark.ayahNumber),
-                      ),
-                    );
+                    openSura(bookmark, quranData, quranMetaData, quranTranslationData, context);
                   },
                 );
               },
             );
           },
         ),
+      ),
+    );
+  }
+
+  void openSura(Bookmark bookmark, List<Sura> quranData, List<SuraMetaData> quranMetaData, List<SuraTranslation> quranTranslationData, BuildContext context) {
+    log('Bookmark tapped: ${bookmark.type} ${bookmark.surahNumber}:${bookmark.ayahNumber}');
+    var i = bookmark.surahNumber - 1;
+    final sura = quranData[i];
+    final suraMetaData = quranMetaData[i];
+    final suraTranslation = quranTranslationData[i];
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AyahPage(
+            sura: sura,
+            suraMetaData: suraMetaData,
+            suraTranslation: suraTranslation,
+            initialAyahIndex: bookmark.ayahNumber),
       ),
     );
   }
