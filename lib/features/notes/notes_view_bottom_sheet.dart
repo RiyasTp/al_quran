@@ -14,10 +14,6 @@ void showNotesBottomSheet(
   required Future<void> Function() onEdit,
   required Future<void> Function() onOpen,
 }) {
-  bool showArabic = true;
-  bool showTranslation = true;
-  bool copyReference = true;
-
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -31,16 +27,6 @@ void showNotesBottomSheet(
 
       return StatefulBuilder(
         builder: (context, setState) {
-          String buildCopyText() {
-            String result = '';
-            if (showArabic)
-              result +=
-                  "${arabicText.replaceAll(nonBreakSpaceChar, ' ')} ${arabicReference.replaceAll(nonBreakSpaceChar, ' ')}\n";
-            if (showTranslation) result += "$translationText\n";
-            if (copyReference) result += "📍 $translationReference";
-            return result.trim();
-          }
-
           return Container(
             constraints: BoxConstraints(maxHeight: maxSheetHeight),
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),

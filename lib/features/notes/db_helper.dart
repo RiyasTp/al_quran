@@ -106,6 +106,25 @@ Future<Note?> getNoteForAyah(int surahNumber, int ayahNumber) async {
   return note.copyWith(tags: tags);
 }
 
+Future<List<Note>?> getNotesForAyah(int surahNumber, int ayahNumber) async {
+  final db = await database;
+  final maps = await db.query(
+    'notes',
+    where: 'surah_number = ? AND ayah_number = ?',
+    whereArgs: [surahNumber, ayahNumber],
+  );
+  
+  if (maps.isEmpty) return null;
+  
+  List<Note> notes = [];
+  for (final map in maps) {
+    final note = Note.fromMap(map);
+    final tags = await getTagsForNote(note.id);
+    notes.add(note.copyWith(tags: tags));
+  }
+  return notes;
+}
+
 Future<bool> hasNoteForAyah(int surahNumber, int ayahNumber) async {
   final db = await database;
   final count = Sqflite.firstIntValue(await db.rawQuery(

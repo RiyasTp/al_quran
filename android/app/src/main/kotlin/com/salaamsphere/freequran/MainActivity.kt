@@ -1,4 +1,4 @@
-package com.example.al_quran
+package com.salaamsphere.freequran
 
 import io.flutter.embedding.android.FlutterActivity
 

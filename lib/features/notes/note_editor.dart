@@ -1,9 +1,11 @@
-import 'dart:math';
-
+import 'dart:developer';
+import 'dart:math' as math;
 import 'package:al_quran/features/al_quran/widgets/constant_widgets.dart';
 import 'package:al_quran/features/notes/db_helper.dart';
 import 'package:al_quran/features/notes/notes_model.dart';
+import 'package:al_quran/features/notes/notes_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class NoteEditorDialog extends StatefulWidget {
   final int surahNumber;
@@ -24,7 +26,6 @@ class NoteEditorDialog extends StatefulWidget {
 class _NoteEditorDialogState extends State<NoteEditorDialog> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _contentController;
-  final _dbHelper = NotesDatabaseHelper.instance;
   List<Tag> _allTags = [];
   List<Tag> _selectedTags = [];
 
@@ -39,12 +40,14 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
   }
 
   Future<void> _loadTags() async {
-    _allTags = await _dbHelper.getAllTags();
+    _allTags = await context.read<NotesViewModel>().getAllTags();
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    context.read<NotesViewModel>().getAllTags().then((e)=>log(e.toString())); // Ensure tags are loaded
+
     return StatefulBuilder(builder: (context, refresh) {
       final screenHeight = MediaQuery.of(context).size.height;
       final appBarHeight = kToolbarHeight;
@@ -52,7 +55,8 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
 
       return Container(
         constraints: BoxConstraints(maxHeight: maxSheetHeight),
-        padding: EdgeInsets.fromLTRB(16, 20, 16, MediaQuery.of(context).viewInsets.bottom + 16),
+        padding: EdgeInsets.fromLTRB(
+            16, 20, 16, MediaQuery.of(context).viewInsets.bottom + 16),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -164,13 +168,13 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
     );
 
     if (name != null && name.isNotEmpty) {
-      final color = Colors.primaries[Random().nextInt(Colors.primaries.length)];
+      final color = Colors.primaries[math.Random().nextInt(Colors.primaries.length)];
       final tag = Tag(
         id: 0, // Will be set by database
         name: name,
         color: color,
       );
-      final id = await _dbHelper.addTag(tag);
+      final id = await context.read<NotesViewModel>().addTag(tag);
       tag.id = id;
 
       setState(() {
@@ -181,6 +185,7 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
   }
 
   Future<void> _saveNote() async {
+
     if (_formKey.currentState!.validate()) {
       final note = Note(
         id: widget.existingNote?.id ?? 0,
@@ -193,9 +198,9 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
       );
 
       if (widget.existingNote != null) {
-        await _dbHelper.updateNote(note);
+        await context.read<NotesViewModel>().updateNote(note);
       } else {
-        await _dbHelper.addNote(note);
+        await context.read<NotesViewModel>().addNote(note);
       }
 
       Navigator.pop(context, true); // Return true to indicate success

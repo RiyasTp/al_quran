@@ -9,9 +9,12 @@ import 'package:al_quran/features/audio_plyer/quran_audio_player.dart';
 import 'package:al_quran/features/bookmarks/book_marks_db_helper.dart';
 import 'package:al_quran/features/notes/db_helper.dart';
 import 'package:al_quran/features/notes/edit_notes_bottom_sheet.dart';
+import 'package:al_quran/features/notes/notes_list_bottom_sheet.dart';
+import 'package:al_quran/features/notes/notes_view_model.dart';
 import 'package:al_quran/features/settings/settings_screen.dart';
 import 'package:al_quran/features/settings/settings_view_model.dart';
 import 'package:al_quran/main.dart';
+import 'package:al_quran/utils/analytics/export.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -35,7 +38,7 @@ class AyahPage extends StatefulWidget {
 
 class _AyahPageState extends State<AyahPage> {
   final _dbHelper = BookmarkDatabaseHelper.instance;
-  final _notesDbHelper = NotesDatabaseHelper.instance;
+  // final _notesDbHelper = NotesDatabaseHelper.instance;
   final ItemScrollController itemScrollController = ItemScrollController();
 
   late final QuranAudioPlayer audioPlayer;
@@ -59,6 +62,17 @@ class _AyahPageState extends State<AyahPage> {
     if (initialIndex > 0) {
       _jumpToAyah(initialIndex);
     }
+
+    // Log the event for opening the Surah
+    AppAnalytics.logScreenView(
+      screenName: 'Sura ${widget.sura.index}: ${widget.suraMetaData.tname}',
+      screenClass: 'SuraPage',
+      parameters: {
+        'sura_number': widget.sura.index,
+        'sura_name': widget.suraMetaData.tname,
+        'current_ayah_index': initialIndex,
+      },
+    );
   }
 
   // Future<void> _playSurahFromStart() async {
@@ -74,16 +88,6 @@ class _AyahPageState extends State<AyahPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => audioPlayer,
-      // builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
-      //   value: SystemUiOverlayStyle.light,
-      //   child: WillPopScope(
-      //     onWillPop: () async {
-      //       audioPlayer.stop();
-      //       return true;
-      //     },
-      //     child: _buildAyahPage(context),
-      //   ),
-      // ),
       child: Scaffold(
         bottomNavigationBar: QuranPlayerControls(
           audioPlayer: audioPlayer,
@@ -119,7 +123,21 @@ class _AyahPageState extends State<AyahPage> {
                   scale: 0.6,
                   child: Switch.adaptive(
                     value: readMode,
-                    onChanged: (val) => setState(() => readMode = val),
+                    onChanged: (val) {
+                      audioPlayer.stop();
+                      setState(() => readMode = val);
+
+                      // Log the event for toggling read mode
+                      AppAnalytics.logEvent(
+                        event: val
+                            ? AnalyticsEvent.readModeEnabled
+                            : AnalyticsEvent.readModeDisabled,
+                        parameters: {
+                          'read_mode': val,
+                          'sura_number': widget.sura.index,
+                        },
+                      );
+                    },
                   ),
                 ),
               ],
@@ -165,7 +183,8 @@ class _AyahPageState extends State<AyahPage> {
                         richText,
                         if (settings2.showTaranslation)
                           Text(ayaTranslation.text,
-                              textScaler: TextScaler.linear(translationFontFactor)),
+                              textScaler:
+                                  TextScaler.linear(translationFontFactor)),
                         const SizedBox(height: 4),
                         Container(
                           margin: EdgeInsets.symmetric(vertical: 4),
@@ -220,14 +239,15 @@ class _AyahPageState extends State<AyahPage> {
                                       );
                                     },
                                   ),
-                                  CustomIconButton(
-                                    child: FutureBuilder<bool>(
-                                        future: _notesDbHelper.hasNoteForAyah(
-                                            widget.sura.index, aya.index),
-                                        builder: (context, snapshot) {
-                                          final hasNote =
-                                              snapshot.data ?? false;
-                                          return Icon(
+                                  FutureBuilder(
+                                      future: context
+                                          .read<NotesViewModel>()
+                                          .hasNotesForAyah(
+                                              widget.sura.index, aya.index),
+                                      builder: (context, snapshot) {
+                                        final hasNote = snapshot.data ?? false;
+                                        return CustomIconButton(
+                                          child: Icon(
                                             hasNote
                                                 ? Icons.sticky_note_2_rounded
                                                 : Icons.sticky_note_2_outlined,
@@ -235,10 +255,11 @@ class _AyahPageState extends State<AyahPage> {
                                             color: Theme.of(context)
                                                 .colorScheme
                                                 .primary,
-                                          );
-                                        }),
-                                    onTap: () => _handleNoteAction(aya.index),
-                                  ),
+                                          ),
+                                          onTap: () => _handleNoteAction(
+                                              aya.index, hasNote),
+                                        );
+                                      }),
                                   FutureBuilder<bool>(
                                       future: _dbHelper.isBookmarked(
                                         type: 'ayah',
@@ -340,30 +361,58 @@ class _AyahPageState extends State<AyahPage> {
         surahNumber: widget.sura.index,
         ayahNumber: ayahNumber,
       );
+      // Log the event for removing bookmark
+      AppAnalytics.logEvent(
+        event: AnalyticsEvent.bookMarkRemoved,
+        parameters: {
+          'surah_number': widget.sura.index,
+          'ayah_number': ayahNumber,
+        },
+      );
     } else {
       await _dbHelper.addBookmark(
         type: 'ayah',
         surahNumber: widget.sura.index,
         ayahNumber: ayahNumber,
       );
+      // Log the event for adding bookmark
+      AppAnalytics.logEvent(
+        event: AnalyticsEvent.bookMarkAdded,
+        parameters: {
+          'surah_number': widget.sura.index,
+          'ayah_number': ayahNumber,
+        },
+      );
     }
     setState(() {});
   }
 
-  Future<void> _handleNoteAction(int ayahNumber) async {
-    final existingNote = await _notesDbHelper.getNoteForAyah(
-      widget.sura.index,
-      ayahNumber,
-    );
-    if (!context.mounted) return;
+  Future<void> _handleNoteAction(int ayahNumber, bool hasNotes) async {
+    if (hasNotes) {
+      // ignore: use_build_context_synchronously
+      showNotesListBottomSheet(
+        context,
+        suraNumber: widget.sura.index,
+        ayahNumber: ayahNumber,
+      );
+      return;
+    }
+
     await showNotesEditorSheet(
       context, // ignore: use_build_context_synchronously
       surahNumber: widget.sura.index,
       ayahNumber: ayahNumber,
-      existingNote: existingNote,
+      existingNote: null,
     );
-
-    setState(() {}); // Refresh the UI
+    // Log the event for creating a new note
+    AppAnalytics.logEvent(
+      event: AnalyticsEvent.notesAdded,
+      parameters: {
+        'surah_number': widget.sura.index,
+        'ayah_number': ayahNumber,
+      },
+    );
+    return;
   }
 }
 

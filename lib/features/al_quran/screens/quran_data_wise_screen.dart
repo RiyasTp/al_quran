@@ -6,6 +6,7 @@ import 'package:al_quran/features/al_quran/widgets/aya_text_span_builder.dart';
 import 'package:al_quran/features/al_quran/widgets/bismillah_widget.dart';
 import 'package:al_quran/features/al_quran/widgets/sura_heading_wdiget.dart';
 import 'package:al_quran/features/settings/settings_view_model.dart';
+import 'package:al_quran/utils/analytics/app_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -26,6 +27,11 @@ class _QuranDataViewState extends State<QuranDataView> {
     super.initState();
     _currentPage = widget.initialPage ?? 0;
     _pageController = PageController(initialPage: _currentPage);
+
+    AppAnalytics.logScreenView(screenName: 'QuranDataView', parameters: {
+      'type': widget.type.typeName,
+      'page': _currentPage.toString()
+    });
   }
 
   @override
@@ -117,7 +123,8 @@ class QuranTypeWisePageContentBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     final quranVM = context.watch<QuranViewModel>();
     final quranData = quranVM.quranData;
-    final quranFontFactor = context.watch<AppSettingsViewModel>().settings.quranFontSize;
+    final quranFontFactor =
+        context.watch<AppSettingsViewModel>().settings.quranFontSize;
 
     try {
       final widgets = <Widget>[];

@@ -4,8 +4,10 @@ import 'package:al_quran/features/al_quran/screens/quran_home_screen.dart';
 import 'package:al_quran/features/al_quran/view_models/quran_view_model.dart';
 import 'package:al_quran/features/bookmarks/book_marks_screen.dart';
 import 'package:al_quran/features/notes/notes_screen.dart';
+import 'package:al_quran/features/notes/notes_view_model.dart';
 import 'package:al_quran/features/settings/settings_screen.dart';
 import 'package:al_quran/features/settings/settings_view_model.dart';
+import 'package:al_quran/utils/analytics/app_analytics.dart';
 import 'package:al_quran/utils/route/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +22,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Initialize Firebase Analytics
+  AppAnalytics.initialize();
+
   final settingsVM = AppSettingsViewModel();
   await settingsVM.loadSettings();
 
@@ -30,6 +35,7 @@ void main() async {
     providers: [
       ChangeNotifierProvider(create: (_) => quranVM),
       ChangeNotifierProvider(create: (_) => settingsVM),
+      ChangeNotifierProvider(create: (_) => NotesViewModel()),
     ],
     builder: (context, _) => const MyApp(),
   ));

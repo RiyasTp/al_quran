@@ -1,16 +1,20 @@
-# al_quran
+# free_quran
 
-A new Flutter project.
 
-## Getting Started
+fvm flutter build apk --release   
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### **Firebase Configuration:**
+To configure Firebase for your app:
+1. Install `flutterfire_cli` for Firebase integration:
+   ```bash
+   dart pub global activate flutterfire_cli
+   ```
+2. Add the following to your shell profile to ensure the `flutterfire` command works:
+   ```bash
+   export PATH="$PATH":"$HOME/.pub-cache/bin"
+   ```
+3. Set up Firebase in your project:
+   ```bash
+   flutterfire configure
+   ```

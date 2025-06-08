@@ -21,7 +21,7 @@ class CustomCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: margin ?? const EdgeInsets.symmetric ( vertical: 8.0, horizontal: 16),
+      margin: margin ?? const EdgeInsets.symmetric ( vertical: 4.0, horizontal: 16),
       padding: padding ?? const EdgeInsets.symmetric(vertical:  0.0, horizontal: 4),
       decoration: BoxDecoration(
         color: color ?? Theme.of(context).cardColor,

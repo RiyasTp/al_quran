@@ -1,5 +1,7 @@
 import 'package:al_quran/features/al_quran/widgets/constant_widgets.dart';
 import 'package:al_quran/main.dart';
+import 'package:al_quran/utils/analytics/analytics_events.dart';
+import 'package:al_quran/utils/analytics/app_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -29,7 +31,9 @@ void showCopyBottomSheet(
         builder: (context, setState) {
           String buildCopyText() {
             String result = '';
-            if (copyArabic) result += "${arabicText.replaceAll(nonBreakSpaceChar, ' ')} ${arabicReference.replaceAll(nonBreakSpaceChar, ' ')}\n";
+            if (copyArabic)
+              result +=
+                  "${arabicText.replaceAll(nonBreakSpaceChar, ' ')} ${arabicReference.replaceAll(nonBreakSpaceChar, ' ')}\n";
             if (copyTranslation) result += "$translationText\n";
             if (copyReference) result += "📍 $translationReference";
             return result.trim();
@@ -63,8 +67,7 @@ void showCopyBottomSheet(
                     ),
                     child: Scrollbar(
                       radius: Radius.circular(10),
-                      thumbVisibility:
-                          true, // show scrollbar even when not scrolling
+                      thumbVisibility: true,
                       trackVisibility: true,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -72,36 +75,34 @@ void showCopyBottomSheet(
                           child: Center(
                             child: Text.rich(
                               TextSpan(children: [
-
                                 if (copyArabic)
                                   TextSpan(
-                                  text: arabicText,
-                                  style: TextStyle(
-                                    fontFamily: "Hafs2",
-                                    fontSize: 26,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
+                                    text: arabicText,
+                                    style: TextStyle(
+                                      fontFamily: "Hafs2",
+                                      fontSize: 26,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
                                   ),
-                                ),
                                 if (copyArabic)
                                   TextSpan(
-                                  text: "  $arabicReference",
-                                  style: const TextStyle(
-                                    fontSize: 16,
+                                    text: "  $arabicReference",
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                    ),
                                   ),
-                                ),
                                 if (copyArabic && copyTranslation)
                                   const TextSpan(
                                     text: "\n",
                                   ),
                                 if (copyTranslation)
                                   TextSpan(
-                                  text: "\n$translationText",
-                                  style: const TextStyle(
-                                    fontSize: 16,
+                                    text: "\n$translationText",
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                    ),
                                   ),
-                                ),
-                               
                                 TextSpan(
                                   text: "\n📍 $translationReference",
                                   style: const TextStyle(
@@ -171,6 +172,13 @@ void showCopyBottomSheet(
                             const SnackBar(
                                 content: Text("Copied to clipboard")),
                           );
+                          AppAnalytics.logEvent(
+                              event: AnalyticsEvent.ayahCopied,
+                              parameters: {
+                                "copy_arabic": copyArabic,
+                                "copy_translation": copyTranslation,
+                                "copy_reference": copyReference,
+                              });
                         },
                         icon: Icon(Icons.copy),
                         label: const Text("Copy"),
