@@ -1,8 +1,8 @@
 import 'package:al_quran/features/al_quran/screens/sheets_and_alerts/copy_aya_bottom_sheet.dart';
 import 'package:al_quran/features/al_quran/widgets/constant_widgets.dart';
-import 'package:al_quran/main.dart';
+import 'package:al_quran/features/notes/notes_aya_view_sheet.dart';
+import 'package:al_quran/features/notes/notes_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 void showNotesBottomSheet(
   BuildContext context, {
@@ -13,6 +13,8 @@ void showNotesBottomSheet(
   required String noteText,
   required Future<void> Function() onEdit,
   required Future<void> Function() onOpen,
+  required Note note,
+  bool showReference = true,
 }) {
   showModalBottomSheet(
     context: context,
@@ -71,46 +73,74 @@ void showNotesBottomSheet(
                             ),
                           ),
                         ))),
-                const SizedBox(height: 8),
-                // Scrollable text container with max height
-                GestureDetector(
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
+                if (note.tags.isNotEmpty) ...[
+                  SizedBox(height: 8),
+                  Wrap(
+                    spacing: 4,
+                    children: note.tags
+                        .map((tag) => Chip(
+                              label: Text(tag.name),
+                              backgroundColor: tag.color.withOpacity(0.2),
+                            ))
+                        .toList(),
+                  ),
+                ],
+                if (showReference)
+                  GestureDetector(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceVariant,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
                               "📍 $translationReference",
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 16,
                               ),
                             ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.copy),
-                            onPressed: () => showCopyBottomSheet(context,
-                                arabicText: arabicText,
-                                translationText: translationText,
-                                translationReference: translationReference,
-                                arabicReference: arabicReference),
-                          ),
-                          IconButton(
-                              onPressed: onOpen,
-                              icon: Icon(Icons.chevron_right_rounded)),
-                        ],
+                            divider,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.copy),
+                                  onPressed: () => showCopyBottomSheet(context,
+                                      arabicText: arabicText,
+                                      translationText: translationText,
+                                      translationReference:
+                                          translationReference,
+                                      arabicReference: arabicReference),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.visibility),
+                                  onPressed: () => showNotesAyaViewBottomSheet(
+                                      context,
+                                      onOpen: onOpen,
+                                      arabicText: arabicText,
+                                      translationText: translationText,
+                                      translationReference:
+                                          translationReference,
+                                      arabicReference: arabicReference),
+                                ),
+                                IconButton(
+                                    onPressed: onOpen,
+                                    icon: Icon(Icons.chevron_right_rounded)),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
 
                 // Buttons
                 Row(
@@ -118,7 +148,7 @@ void showNotesBottomSheet(
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text("Cancel"),
+                        child: const Text("Close"),
                       ),
                     ),
                     const SizedBox(width: 12),

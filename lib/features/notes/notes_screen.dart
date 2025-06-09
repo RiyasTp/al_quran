@@ -46,20 +46,7 @@ class _NotesPageState extends State<NotesPage> {
       appBar: AppBar(title: Text('My Notes')),
       body: RefreshIndicator(
         onRefresh: _refreshNotes,
-        child: FutureBuilder<List<Note>>(
-          future: _notesFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error loading notes'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No notes yet'));
-            }
-            final notes = snapshot.data!;
-            return NotesListView(notes: notes);
-          },
-        ),
+        child: NotesListView(),
       ),
     );
   }

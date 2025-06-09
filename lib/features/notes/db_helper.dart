@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:al_quran/features/notes/notes_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -57,111 +59,138 @@ class NotesDatabaseHelper {
   }
 
   // Note operations
-Future<int> addNote(Note note) async {
-  final db = await database;
-  final id = await db.insert('notes', {
-    'surah_number': note.surahNumber,
-    'ayah_number': note.ayahNumber,
-    'content': note.content,
-    'created_at': note.createdAt.toIso8601String(),
-    'updated_at': note.updatedAt.toIso8601String(),
-  });
-  
-  // Add tags if any
-  if (note.tags.isNotEmpty) {
-    for (final tag in note.tags) {
-      await _addTagToNote(id, tag.id);
+  Future<int> addNote(Note note) async {
+    final db = await database;
+    final id = await db.insert('notes', {
+      'surah_number': note.surahNumber,
+      'ayah_number': note.ayahNumber,
+      'content': note.content,
+      'created_at': note.createdAt.toIso8601String(),
+      'updated_at': note.updatedAt.toIso8601String(),
+    });
+
+    // Add tags if any
+    if (note.tags.isNotEmpty) {
+      for (final tag in note.tags) {
+        await _addTagToNote(id, tag.id);
+      }
     }
+
+    return id;
   }
-  
-  return id;
-}
 
-Future<int> updateNote(Note note) async {
-  final db = await database;
-  return await db.update('notes', {
-    'content': note.content,
-    'updated_at': DateTime.now().toIso8601String(),
-  }, where: 'id = ?', whereArgs: [note.id]);
-}
+  Future<int> updateNote(Note note) async {
+    final db = await database;
+    log('Updating note with ID: ${note.id}, content: ${note.content}');
+    final id = await db.update(
+        'notes',
+        {
+          'content': note.content,
+          'updated_at': DateTime.now().toIso8601String(),
+        },
+        where: 'id = ?',
+        whereArgs: [note.id]);
+    await _removeALLTagsFromNote(note.id);
+    if (note.tags.isNotEmpty) {
+      for (final tag in note.tags) {
+        log('Adding tag with ID: ${tag.id} to note with ID: $id');
+        await _addTagToNote(note.id, tag.id);
+      }
+    }
+    return id;
+  }
 
-Future<int> deleteNote(int id) async {
-  final db = await database;
-  return await db.delete('notes', where: 'id = ?', whereArgs: [id]);
-}
+  Future<int> deleteNote(int id) async {
+    final db = await database;
+    return await db.delete('notes', where: 'id = ?', whereArgs: [id]);
+  }
 
-Future<Note?> getNoteForAyah(int surahNumber, int ayahNumber) async {
-  final db = await database;
-  final maps = await db.query(
-    'notes',
-    where: 'surah_number = ? AND ayah_number = ?',
-    whereArgs: [surahNumber, ayahNumber],
-    limit: 1,
-  );
-  
-  if (maps.isEmpty) return null;
-  
-  final note = Note.fromMap(maps.first);
-  final tags = await getTagsForNote(note.id);
-  return note.copyWith(tags: tags);
-}
+  Future<Note?> getNoteForAyah(int surahNumber, int ayahNumber) async {
+    final db = await database;
+    final maps = await db.query(
+      'notes',
+      where: 'surah_number = ? AND ayah_number = ?',
+      whereArgs: [surahNumber, ayahNumber],
+      limit: 1,
+    );
 
-Future<List<Note>?> getNotesForAyah(int surahNumber, int ayahNumber) async {
-  final db = await database;
-  final maps = await db.query(
-    'notes',
-    where: 'surah_number = ? AND ayah_number = ?',
-    whereArgs: [surahNumber, ayahNumber],
-  );
-  
-  if (maps.isEmpty) return null;
-  
-  List<Note> notes = [];
-  for (final map in maps) {
-    final note = Note.fromMap(map);
+    if (maps.isEmpty) return null;
+
+    final note = Note.fromMap(maps.first);
     final tags = await getTagsForNote(note.id);
-    notes.add(note.copyWith(tags: tags));
+    return note.copyWith(tags: tags);
   }
-  return notes;
-}
 
-Future<bool> hasNoteForAyah(int surahNumber, int ayahNumber) async {
-  final db = await database;
-  final count = Sqflite.firstIntValue(await db.rawQuery(
-    'SELECT COUNT(*) FROM notes WHERE surah_number = ? AND ayah_number = ?',
-    [surahNumber, ayahNumber],
-  ));
-  return count != null && count > 0;
-}
+  Future<List<Note>?> getNotesForAyah(int surahNumber, int ayahNumber) async {
+    final db = await database;
+    final maps = await db.query(
+      'notes',
+      where: 'surah_number = ? AND ayah_number = ?',
+      whereArgs: [surahNumber, ayahNumber],
+    );
+
+    if (maps.isEmpty) return null;
+
+    List<Note> notes = [];
+    for (final map in maps) {
+      final note = Note.fromMap(map);
+      final tags = await getTagsForNote(note.id);
+      notes.add(note.copyWith(tags: tags));
+    }
+    return notes;
+  }
+
+  Future<bool> hasNoteForAyah(int surahNumber, int ayahNumber) async {
+    final db = await database;
+    final count = Sqflite.firstIntValue(await db.rawQuery(
+      'SELECT COUNT(*) FROM notes WHERE surah_number = ? AND ayah_number = ?',
+      [surahNumber, ayahNumber],
+    ));
+    return count != null && count > 0;
+  }
 
 // Tag operations
-Future<int> addTag(Tag tag) async {
-  final db = await database;
-  return await db.insert('tags', tag.toMap());
-}
+  Future<int> addTag(Tag tag) async {
+    final db = await database;
+    return await db.insert('tags', tag.toMap());
+  }
 
-Future<List<Tag>> getAllTags() async {
-  final db = await database;
-  final maps = await db.query('tags');
-  return List.generate(maps.length, (i) => Tag.fromMap(maps[i]));
-}
+  Future<List<Tag>> getAllTags() async {
+    final db = await database;
+    final maps = await db.query('tags');
+    return List.generate(maps.length, (i) => Tag.fromMap(maps[i]));
+  }
 
-Future<List<Tag>> getTagsForNote(int noteId) async {
-  final db = await database;
-  final maps = await db.rawQuery('''
+  Future<List<Tag>> getTagsForNote(int noteId) async {
+    final db = await database;
+    final maps = await db.rawQuery('''
     SELECT tags.* FROM tags
     INNER JOIN note_tags ON tags.id = note_tags.tag_id
     WHERE note_tags.note_id = ?
   ''', [noteId]);
-  
-  return List.generate(maps.length, (i) => Tag.fromMap(maps[i]));
-}
 
-Future<void> _addTagToNote(int noteId, int tagId) async {
-  final db = await database;
-  await db.insert('note_tags', {
-    'note_id': noteId,
-    'tag_id': tagId,
-  }, conflictAlgorithm: ConflictAlgorithm.ignore);
-}
+    return List.generate(maps.length, (i) => Tag.fromMap(maps[i]));
+  }
+
+  Future<void> _addTagToNote(int noteId, int tagId) async {
+    final db = await database;
+    await db.insert(
+        'note_tags',
+        {
+          'note_id': noteId,
+          'tag_id': tagId,
+        },
+        conflictAlgorithm: ConflictAlgorithm.ignore);
+  }
+
+  Future<void> _removeALLTagsFromNote(int noteId) async {
+    final db = await database;
+    await db.delete('note_tags', where: 'note_id = ?', whereArgs: [noteId]);
+  }
+
+  Future<void> deleteTag(int tagId) async {
+    final db = await database;
+    await db.delete('tags', where: 'id = ?', whereArgs: [tagId]);
+    await db.delete('note_tags', where: 'tag_id = ?', whereArgs: [tagId]);
+  }
 }

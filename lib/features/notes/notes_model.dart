@@ -19,7 +19,7 @@ class Note {
     this.tags = const [],
   });
 
-    Note copyWith({
+  Note copyWith({
     int? id,
     int? surahNumber,
     int? ayahNumber,
@@ -35,7 +35,7 @@ class Note {
       content: content ?? this.content,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      tags: tags ?? this.tags,
+      tags: tags ?? [...this.tags],
     );
   }
 

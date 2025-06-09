@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'dart:math' as math;
 import 'package:al_quran/features/al_quran/widgets/constant_widgets.dart';
-import 'package:al_quran/features/notes/db_helper.dart';
 import 'package:al_quran/features/notes/notes_model.dart';
 import 'package:al_quran/features/notes/notes_view_model.dart';
 import 'package:flutter/material.dart';

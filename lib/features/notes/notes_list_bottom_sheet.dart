@@ -20,7 +20,7 @@ void showNotesListBottomSheet(
     builder: (context) {
       return FutureBuilder<List<Note>?>(
           future:
-              context.read<NotesViewModel>().getNotes(suraNumber, ayahNumber),
+              context.read<NotesViewModel>().getNotes(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -51,7 +51,7 @@ void showNotesListBottomSheet(
 
                     divider,
                     const SizedBox(height: 8),
-                    Flexible(child: NotesListView(notes: notes, margin: EdgeInsets.symmetric(horizontal: 8,vertical: 4),)),
+                    Flexible(child: NotesListView(suraNumber: suraNumber, ayahNumber: ayahNumber, margin: EdgeInsets.symmetric(horizontal: 8,vertical: 4),)),
                     const SizedBox(height: 16),
                     Row(
                       children: [

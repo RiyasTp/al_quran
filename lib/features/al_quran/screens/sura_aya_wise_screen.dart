@@ -7,7 +7,6 @@ import 'package:al_quran/features/al_quran/widgets/constant_widgets.dart';
 import 'package:al_quran/features/al_quran/widgets/custom_icon_button.dart';
 import 'package:al_quran/features/audio_plyer/quran_audio_player.dart';
 import 'package:al_quran/features/bookmarks/book_marks_db_helper.dart';
-import 'package:al_quran/features/notes/db_helper.dart';
 import 'package:al_quran/features/notes/edit_notes_bottom_sheet.dart';
 import 'package:al_quran/features/notes/notes_list_bottom_sheet.dart';
 import 'package:al_quran/features/notes/notes_view_model.dart';

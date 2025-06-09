@@ -1,5 +1,6 @@
 # free_quran
 
+logo : https://www.pngegg.com/en/png-zlphm
 
 fvm flutter build apk --release   
 

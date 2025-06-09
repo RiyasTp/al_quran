@@ -5,7 +5,16 @@ import 'package:flutter/foundation.dart';
 class NotesViewModel extends ChangeNotifier {
   final _dbHelper = NotesDatabaseHelper.instance;
 
-  Future<List<Note>> getAllNotes() async {
+  List<Note> _notes = [];
+  List<Note> get notes => _notes;
+
+  List<Note> _ayaNotes = [];
+  List<Note> get ayaNotes => _ayaNotes;
+
+  List<Tag> _tags = [];
+  List<Tag> get tags => _tags;
+
+  Future<List<Note>> _getAllNotes() async {
     final db = await _dbHelper.database;
     final maps = await db.query('notes', orderBy: 'updated_at DESC');
     if (maps.isEmpty) {
@@ -17,7 +26,6 @@ class NotesViewModel extends ChangeNotifier {
       final tags = await _dbHelper.getTagsForNote(note.id);
       notes.add(note.copyWith(tags: tags));
     }
-
     return notes;
   }
 
@@ -26,15 +34,29 @@ class NotesViewModel extends ChangeNotifier {
     return note;
   }
 
-  Future<List<Note>?> getNotes(int surahNumber, int ayahNumber) async {
-    return await _dbHelper.getNotesForAyah(surahNumber, ayahNumber);
+  Future<List<Note>?> getNotes() async {
+    var getAllNotes = await _getAllNotes();
+    _notes = getAllNotes;
+   
+      return getAllNotes;
+    
+
+  }
+
+ List<Note> getAyawiseNotes(int? surahNumber, int? ayahNumber) {
+    final notes = _notes
+        .where((note) =>
+            note.surahNumber == surahNumber && note.ayahNumber == ayahNumber)
+        .toList();
+    return notes;
   }
 
   Future<Note?> getNoteForAyah(int surahNumber, int ayahNumber) async {
     try {
       return await _dbHelper.getNoteForAyah(surahNumber, ayahNumber);
     } finally {
-      notifyListeners();
+           _onActionComplete();
+
     }
   }
 
@@ -42,7 +64,8 @@ class NotesViewModel extends ChangeNotifier {
     try {
       return await _dbHelper.addNote(note);
     } finally {
-      notifyListeners();
+           _onActionComplete();
+
     }
   }
 
@@ -50,7 +73,8 @@ class NotesViewModel extends ChangeNotifier {
     try {
       return await _dbHelper.updateNote(note);
     } finally {
-      notifyListeners();
+           _onActionComplete();
+
     }
   }
 
@@ -58,7 +82,7 @@ class NotesViewModel extends ChangeNotifier {
     try {
       return await _dbHelper.deleteNote(id);
     } finally {
-      notifyListeners();
+      _onActionComplete();
     }
   }
 
@@ -70,13 +94,14 @@ class NotesViewModel extends ChangeNotifier {
     }
   }
 
- Future<int> addTag(Tag tag) async {
+  Future<int> addTag(Tag tag) async {
     try {
       return await _dbHelper.addTag(tag);
     } finally {
       notifyListeners();
     }
   }
+
   Future<int> deleteTag(int id) async {
     return 1;
     // try {
@@ -84,5 +109,10 @@ class NotesViewModel extends ChangeNotifier {
     // } finally {
     //   notifyListeners();
     // }
+  }
+
+  _onActionComplete() async{
+    _notes = await _getAllNotes();
+    notifyListeners();
   }
 }
