@@ -1,3 +1,5 @@
+import 'package:al_quran/design_system/icons/cusotm_svg_icon.dart';
+import 'package:al_quran/design_system/icons/svg_icons.dart';
 import 'package:al_quran/design_system/themes/dark_theme.dart';
 import 'package:al_quran/design_system/themes/light_theme.dart';
 import 'package:al_quran/features/al_quran/screens/quran_home_screen.dart';
@@ -129,13 +131,13 @@ class _MainScaffoldState extends State<MainScaffold> {
           currentIndex: _currentIndex,
           items: [
             BottomNavigationBarItem(
-                label: 'Home', icon: Icon(Icons.home_filled)),
+                label: 'Home', icon: CustomSvgIcon(icon: SvgIcons.home)),
             BottomNavigationBarItem(
-                label: 'Bookmarks', icon: Icon(Icons.bookmark_rounded)),
+                label: 'Bookmarks', icon: CustomSvgIcon(icon: SvgIcons.bookmark)),
             BottomNavigationBarItem(
-                label: 'Notes', icon: Icon(Icons.sticky_note_2_rounded)),
+                label: 'Notes', icon: CustomSvgIcon(icon: SvgIcons. note)),
             BottomNavigationBarItem(
-                label: 'Settings', icon: Icon(Icons.settings_rounded)),
+                label: 'Settings', icon: CustomSvgIcon(icon: SvgIcons.settings)),
           ]),
     );
   }

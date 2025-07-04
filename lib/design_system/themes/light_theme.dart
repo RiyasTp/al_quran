@@ -54,7 +54,7 @@ final ThemeData lightTheme = ThemeData(
     labelMedium: TextStyles.labelMedium,
     labelSmall: TextStyles.labelSmall,
   ),
-  fontFamily: 'Lexend Deca',
+  fontFamily: 'Poppins',
   // appBarTheme: AppBarTheme(titleSpacing: 0),
   iconButtonTheme: IconButtonThemeData(style: ButtonStyle()),
   bottomNavigationBarTheme: BottomNavigationBarThemeData(

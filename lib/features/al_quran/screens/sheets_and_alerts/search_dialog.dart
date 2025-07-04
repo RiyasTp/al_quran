@@ -1,7 +1,10 @@
 
+import 'package:al_quran/design_system/icons/cusotm_svg_icon.dart';
 import 'package:al_quran/features/al_quran/models/quran_models.dart';
 import 'package:al_quran/features/al_quran/screens/sura_aya_wise_screen.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../design_system/icons/svg_icons.dart';
 class SearchQuranWidget extends StatelessWidget {
   const SearchQuranWidget({
     super.key,
@@ -154,7 +157,7 @@ class SearchQuranWidget extends StatelessWidget {
       searchController: sc,
       builder: (context, controller) {
         return IconButton(
-          icon: const Icon(Icons.search),
+          icon: const CustomSvgIcon(icon: SvgIcons.search),
           tooltip: 'Search Quran',
           onPressed: () => controller.openView(),
         );

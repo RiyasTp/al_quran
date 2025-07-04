@@ -54,7 +54,7 @@ final ThemeData darkTheme = ThemeData(
     labelMedium: TextStyles.labelMedium,
     labelSmall: TextStyles.labelSmall,
   ),
-  fontFamily: 'Lexend Deca',
+  fontFamily: 'Poppins',
   iconButtonTheme: IconButtonThemeData(style: ButtonStyle()),
   bottomNavigationBarTheme: BottomNavigationBarThemeData(
     backgroundColor: DarkColors.surface, // or any color you prefer

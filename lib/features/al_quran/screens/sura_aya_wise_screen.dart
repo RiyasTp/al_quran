@@ -1,3 +1,5 @@
+import 'package:al_quran/design_system/icons/cusotm_svg_icon.dart';
+import 'package:al_quran/design_system/icons/svg_icons.dart';
 import 'package:al_quran/features/al_quran/models/quran_models.dart';
 import 'package:al_quran/features/al_quran/screens/quran_data_wise_screen.dart';
 import 'package:al_quran/features/al_quran/screens/sheets_and_alerts/copy_aya_bottom_sheet.dart';
@@ -151,7 +153,7 @@ class _AyahPageState extends State<AyahPage> {
                     },
                   );
                 },
-                icon: Icon(Icons.settings_outlined)),
+                icon: CustomSvgIcon(icon: SvgIcons.settings)),
             // DownloadButton(sura: widget.sura),
           ],
         ),

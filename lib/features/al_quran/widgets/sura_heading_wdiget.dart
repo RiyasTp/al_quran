@@ -13,6 +13,7 @@ class SuraHeadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FittedBox(
+      fit: BoxFit.scaleDown,
       child: Padding(
         padding: EdgeInsets.symmetric(vertical : 16, horizontal: 8),
         child: Text("${sura.index.toString().padLeft(3, '0')}" "surah", 
