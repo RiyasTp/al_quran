@@ -41,6 +41,8 @@ class _AyahPageState extends State<AyahPage> {
   final _dbHelper = BookmarkDatabaseHelper.instance;
   // final _notesDbHelper = NotesDatabaseHelper.instance;
   final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
 
   late final QuranAudioPlayer audioPlayer;
 
@@ -162,6 +164,7 @@ class _AyahPageState extends State<AyahPage> {
             : Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
                 child: ScrollablePositionedList.builder(
+                  itemPositionsListener: itemPositionsListener,
                   itemScrollController: itemScrollController,
                   itemBuilder: (context, index) {
                     final aya = widget.sura.ayas[index];
@@ -338,10 +341,15 @@ class _AyahPageState extends State<AyahPage> {
   }
 
   void _scrollToAyah(int ayahIndex) {
+    final visibleIndexes = itemPositionsListener.itemPositions.value
+        .where((item) => item.itemLeadingEdge < 1 && item.itemTrailingEdge > 0)
+        .map((item) => item.index)
+        .toList();
+    if (visibleIndexes.contains(widget.sura.ayas.length-1)) return;
     Future.delayed(Duration.zero, () {
       if (ayahIndex >= 0 && ayahIndex < widget.sura.ayas.length) {
         itemScrollController.scrollTo(
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
           index: ayahIndex,
         );
