@@ -190,134 +190,141 @@ class _AyahPageState extends State<AyahPage> {
                               textScaler:
                                   TextScaler.linear(translationFontFactor)),
                         const SizedBox(height: 4),
-                        Container(
-                          margin: EdgeInsets.symmetric(vertical: 4),
-                          decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryContainer,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8))),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomIconButton(
-                                child: Text(aya.index.toString(),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                        )),
-                              ),
-                              Row(
-                                children: [
-                                  CustomIconButton(
-                                    child: Icon(
-                                      Icons.info_outline_rounded,
-                                      size: 22,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                  ),
-                                  CustomIconButton(
-                                    child: Icon(
-                                      Icons.copy,
-                                      size: 22,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                    onTap: () {
-                                      showCopyBottomSheet(
-                                        context,
-                                        arabicText: aya.text +
-                                            nonBreakSpaceChar +
-                                            toArabicNumerals(aya.index),
-                                        translationText: ayaTranslation.text,
-                                        translationReference:
-                                            "Surah ${widget.suraMetaData.tname} (${widget.suraMetaData.ename})  ${widget.sura.index} : ${aya.index} - ${context.read<AppSettingsViewModel>().settings.translationAuthor}",
-                                        arabicReference:
-                                            "سورة$nonBreakSpaceChar${widget.sura.name}$nonBreakSpaceChar•$nonBreakSpaceChar${toArabicNumerals(widget.sura.index)}$nonBreakSpaceChar:$nonBreakSpaceChar${toArabicNumerals(aya.index)}",
-                                      );
-                                    },
-                                  ),
-                                  FutureBuilder(
-                                      future: context
-                                          .read<NotesViewModel>()
-                                          .hasNotesForAyah(
-                                              widget.sura.index, aya.index),
-                                      builder: (context, snapshot) {
-                                        final hasNote = snapshot.data ?? false;
-                                        return CustomIconButton(
-                                          child: Icon(
-                                            hasNote
-                                                ? Icons.sticky_note_2_rounded
-                                                : Icons.sticky_note_2_outlined,
-                                            size: 22,
+                        Consumer<QuranAudioPlayer>(
+                            builder: (context, audioPlayer, child) {
+                          return Container(
+                            margin: EdgeInsets.symmetric(vertical: 4),
+                            decoration: BoxDecoration(
+                                color: (audioPlayer.currentAyyaIndex == index &&
+                                        audioPlayer.isPlaying)
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8))),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CustomIconButton(
+                                  child: Text(aya.index.toString(),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
                                             color: Theme.of(context)
                                                 .colorScheme
                                                 .primary,
-                                          ),
-                                          onTap: () => _handleNoteAction(
-                                              aya.index, hasNote),
-                                        );
-                                      }),
-                                  FutureBuilder<bool>(
-                                      future: _dbHelper.isBookmarked(
-                                        type: 'ayah',
-                                        surahNumber: widget.sura.index,
-                                        ayahNumber: aya.index,
+                                          )),
+                                ),
+                                Row(
+                                  children: [
+                                    CustomIconButton(
+                                      child: Icon(
+                                        Icons.info_outline_rounded,
+                                        size: 22,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                       ),
-                                      builder: (context, snapshot) {
-                                        final isBookmarked =
-                                            snapshot.data ?? false;
-                                        return CustomIconButton(
-                                          child: Icon(
-                                            isBookmarked
-                                                ? Icons.bookmark
-                                                : Icons.bookmark_border,
-                                            size: 22,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                          ),
-                                          onTap: () =>
-                                              _toggleAyahBookmark(aya.index),
+                                    ),
+                                    CustomIconButton(
+                                      child: Icon(
+                                        Icons.copy,
+                                        size: 22,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                      onTap: () {
+                                        showCopyBottomSheet(
+                                          context,
+                                          arabicText: aya.text +
+                                              nonBreakSpaceChar +
+                                              toArabicNumerals(aya.index),
+                                          translationText: ayaTranslation.text,
+                                          translationReference:
+                                              "Surah ${widget.suraMetaData.tname} (${widget.suraMetaData.ename})  ${widget.sura.index} : ${aya.index} - ${context.read<AppSettingsViewModel>().settings.translationAuthor}",
+                                          arabicReference:
+                                              "سورة$nonBreakSpaceChar${widget.sura.name}$nonBreakSpaceChar•$nonBreakSpaceChar${toArabicNumerals(widget.sura.index)}$nonBreakSpaceChar:$nonBreakSpaceChar${toArabicNumerals(aya.index)}",
                                         );
-                                      }),
-                                  Consumer<QuranAudioPlayer>(
-                                    builder: (context, audioPlayer, child) {
-                                      return CustomIconButton(
-                                        child: Icon(
-                                          audioPlayer.currentAyyaIndex ==
-                                                      index &&
-                                                  audioPlayer.isPlaying
-                                              ? Icons.pause_circle_outline
-                                              : Icons.play_circle_outline,
-                                          size: 22,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                      },
+                                    ),
+                                    FutureBuilder(
+                                        future: context
+                                            .read<NotesViewModel>()
+                                            .hasNotesForAyah(
+                                                widget.sura.index, aya.index),
+                                        builder: (context, snapshot) {
+                                          final hasNote =
+                                              snapshot.data ?? false;
+                                          return CustomIconButton(
+                                            child: Icon(
+                                              hasNote
+                                                  ? Icons.sticky_note_2_rounded
+                                                  : Icons
+                                                      .sticky_note_2_outlined,
+                                              size: 22,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            ),
+                                            onTap: () => _handleNoteAction(
+                                                aya.index, hasNote),
+                                          );
+                                        }),
+                                    FutureBuilder<bool>(
+                                        future: _dbHelper.isBookmarked(
+                                          type: 'ayah',
+                                          surahNumber: widget.sura.index,
+                                          ayahNumber: aya.index,
                                         ),
-                                        onTap: () {
-                                          if (audioPlayer.currentAyyaIndex ==
-                                                  index &&
-                                              audioPlayer.isPlaying) {
-                                            audioPlayer.pause();
-                                          } else {
-                                            _playAya(aya, index);
-                                          }
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
+                                        builder: (context, snapshot) {
+                                          final isBookmarked =
+                                              snapshot.data ?? false;
+                                          return CustomIconButton(
+                                            child: Icon(
+                                              isBookmarked
+                                                  ? Icons.bookmark
+                                                  : Icons.bookmark_border,
+                                              size: 22,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            ),
+                                            onTap: () =>
+                                                _toggleAyahBookmark(aya.index),
+                                          );
+                                        }),
+                                    CustomIconButton(
+                                      child: Icon(
+                                        audioPlayer.currentAyyaIndex == index &&
+                                                audioPlayer.isPlaying
+                                            ? Icons.pause_circle_outline
+                                            : Icons.play_circle_outline,
+                                        size: 22,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                      onTap: () {
+                                        if (audioPlayer.currentAyyaIndex ==
+                                                index &&
+                                            audioPlayer.isPlaying) {
+                                          audioPlayer.pause();
+                                        } else {
+                                          _playAya(aya, index);
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          );
+                        }),
                         divider,
                         const SizedBox(height: 10),
                       ],
@@ -345,12 +352,15 @@ class _AyahPageState extends State<AyahPage> {
         .where((item) => item.itemLeadingEdge < 1 && item.itemTrailingEdge > 0)
         .map((item) => item.index)
         .toList();
-    if (visibleIndexes.contains(widget.sura.ayas.length-1)) return;
+    var ayaLength = widget.sura.ayas.length;
+    if (visibleIndexes.contains(ayaLength - 1) && ayahIndex != ayaLength - 1) {
+      return;
+    }
     Future.delayed(Duration.zero, () {
-      if (ayahIndex >= 0 && ayahIndex < widget.sura.ayas.length) {
+      if (ayahIndex >= 0 && ayahIndex < ayaLength) {
         itemScrollController.scrollTo(
           duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
+          curve: Curves.linear,
           index: ayahIndex,
         );
       }
