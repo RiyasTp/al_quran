@@ -26,6 +26,7 @@ class BookmarkDatabaseHelper {
       CREATE TABLE bookmarks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         type TEXT NOT NULL, -- 'surah' or 'ayah'
+        title TEXT, -- Optional, can be used for display purposes
         surah_number INTEGER NOT NULL,
         ayah_number INTEGER,
         created_at TEXT NOT NULL
@@ -37,12 +38,14 @@ class BookmarkDatabaseHelper {
   Future<int> addBookmark({
     required String type,
     required int surahNumber,
+    String? title,
     int? ayahNumber,
   }) async {
     final db = await instance.database;
     
     return await db.insert('bookmarks', {
       'type': type,
+      'title': title,
       'surah_number': surahNumber,
       'ayah_number': ayahNumber,
       'created_at': DateTime.now().toIso8601String(),

@@ -71,31 +71,31 @@ class _BookmarksPageState extends State<BookmarksPage> {
                   child: ListTile(
                     leading: Icon(
                       bookmark.type == 'surah' ? Icons.book : Icons.bookmark,
-                    
                     ),
                     title: Text(
                         'Surah ${suraMetaData.tname} ${bookmark.surahNumber}:${bookmark.ayahNumber ?? '1'}'),
+                    subtitle:
+                        bookmark.title.isNotEmpty ? Text(bookmark.title) : null,
                     trailing: PopupMenuButton<String>(
-                    elevation: 12,
-                    shadowColor: Colors.black, //TODO : change to theme
-                    splashRadius: 1,
-                    color: Theme.of(context).colorScheme.surfaceDim,
-                    child: Icon(Icons.more_vert),
-                    onSelected: (value) async {
-                      if (value == 'delete') {
-                        await onDelete(bookmark);
-                      }
-                    },
-                    itemBuilder: (context) => [
-                    
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Text('Delete',
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.error)),
-                      ),
-                    ],
-                  ),
+                      elevation: 12,
+                      shadowColor: Colors.black, //TODO : change to theme
+                      splashRadius: 1,
+                      color: Theme.of(context).colorScheme.surfaceDim,
+                      child: Icon(Icons.more_vert),
+                      onSelected: (value) async {
+                        if (value == 'delete') {
+                          await onDelete(bookmark);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Delete',
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error)),
+                        ),
+                      ],
+                    ),
                     onTap: () {
                       openSura(bookmark, quranData, quranMetaData,
                           quranTranslationData, context);

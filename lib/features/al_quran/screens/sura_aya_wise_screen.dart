@@ -9,6 +9,7 @@ import 'package:al_quran/features/al_quran/widgets/constant_widgets.dart';
 import 'package:al_quran/features/al_quran/widgets/custom_icon_button.dart';
 import 'package:al_quran/features/audio_plyer/quran_audio_player.dart';
 import 'package:al_quran/features/bookmarks/book_marks_db_helper.dart';
+import 'package:al_quran/features/bookmarks/book_marks_title_sheet.dart';
 import 'package:al_quran/features/notes/edit_notes_bottom_sheet.dart';
 import 'package:al_quran/features/notes/notes_list_bottom_sheet.dart';
 import 'package:al_quran/features/notes/notes_view_model.dart';
@@ -375,6 +376,29 @@ class _AyahPageState extends State<AyahPage> {
     );
 
     if (isBookmarked) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Delete Bookmark'),
+            content: Text('Are you sure you want to delete this bookmark?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('Delete'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirmed != true) {
+        return;
+      }
       await _dbHelper.removeBookmark(
         type: 'ayah',
         surahNumber: widget.sura.index,
@@ -389,17 +413,25 @@ class _AyahPageState extends State<AyahPage> {
         },
       );
     } else {
-      await _dbHelper.addBookmark(
-        type: 'ayah',
+      await showBookmarksTitleSheet(
+        context,
         surahNumber: widget.sura.index,
         ayahNumber: ayahNumber,
-      );
-      // Log the event for adding bookmark
-      AppAnalytics.logEvent(
-        event: AnalyticsEvent.bookMarkAdded,
-        parameters: {
-          'surah_number': widget.sura.index,
-          'ayah_number': ayahNumber,
+        onSave: (String? title) async {
+          await _dbHelper.addBookmark(
+            type: 'ayah',
+            title: title,
+            surahNumber: widget.sura.index,
+            ayahNumber: ayahNumber,
+          );
+          // Log the event for adding bookmark
+          AppAnalytics.logEvent(
+            event: AnalyticsEvent.bookMarkAdded,
+            parameters: {
+              'surah_number': widget.sura.index,
+              'ayah_number': ayahNumber,
+            },
+          );
         },
       );
     }
@@ -408,7 +440,6 @@ class _AyahPageState extends State<AyahPage> {
 
   Future<void> _handleNoteAction(int ayahNumber, bool hasNotes) async {
     if (hasNotes) {
-      // ignore: use_build_context_synchronously
       showNotesListBottomSheet(
         context,
         suraNumber: widget.sura.index,
@@ -418,18 +449,10 @@ class _AyahPageState extends State<AyahPage> {
     }
 
     await showNotesEditorSheet(
-      context, // ignore: use_build_context_synchronously
+      context,
       surahNumber: widget.sura.index,
       ayahNumber: ayahNumber,
       existingNote: null,
-    );
-    // Log the event for creating a new note
-    AppAnalytics.logEvent(
-      event: AnalyticsEvent.notesAdded,
-      parameters: {
-        'surah_number': widget.sura.index,
-        'ayah_number': ayahNumber,
-      },
     );
     return;
   }

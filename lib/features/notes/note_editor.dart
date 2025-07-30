@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:al_quran/features/al_quran/widgets/constant_widgets.dart';
 import 'package:al_quran/features/notes/notes_model.dart';
 import 'package:al_quran/features/notes/notes_view_model.dart';
+import 'package:al_quran/utils/analytics/analytics_events.dart';
+import 'package:al_quran/utils/analytics/app_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -45,7 +47,10 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
 
   @override
   Widget build(BuildContext context) {
-    context.read<NotesViewModel>().getAllTags().then((e)=>log(e.toString())); // Ensure tags are loaded
+    context
+        .read<NotesViewModel>()
+        .getAllTags()
+        .then((e) => log(e.toString())); // Ensure tags are loaded
 
     return StatefulBuilder(builder: (context, refresh) {
       final screenHeight = MediaQuery.of(context).size.height;
@@ -167,7 +172,8 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
     );
 
     if (name != null && name.isNotEmpty) {
-      final color = Colors.primaries[math.Random().nextInt(Colors.primaries.length)];
+      final color =
+          Colors.primaries[math.Random().nextInt(Colors.primaries.length)];
       final tag = Tag(
         id: 0, // Will be set by database
         name: name,
@@ -184,7 +190,6 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
   }
 
   Future<void> _saveNote() async {
-
     if (_formKey.currentState!.validate()) {
       final note = Note(
         id: widget.existingNote?.id ?? 0,
@@ -201,7 +206,14 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
       } else {
         await context.read<NotesViewModel>().addNote(note);
       }
-
+      // Log the event for creating a new note
+      AppAnalytics.logEvent(
+        event: AnalyticsEvent.notesAdded,
+        parameters: {
+          'surah_number': widget.surahNumber,
+          'ayah_number': widget.ayahNumber,
+        },
+      );
       Navigator.pop(context, true); // Return true to indicate success
     }
   }
