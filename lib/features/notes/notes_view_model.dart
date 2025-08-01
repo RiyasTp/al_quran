@@ -8,10 +8,10 @@ class NotesViewModel extends ChangeNotifier {
   List<Note> _notes = [];
   List<Note> get notes => _notes;
 
-  List<Note> _ayaNotes = [];
+  final List<Note> _ayaNotes = [];
   List<Note> get ayaNotes => _ayaNotes;
 
-  List<Tag> _tags = [];
+  final List<Tag> _tags = [];
   List<Tag> get tags => _tags;
 
   Future<List<Note>> _getAllNotes() async {

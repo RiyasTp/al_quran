@@ -66,9 +66,7 @@ class SearchQuranWidget extends StatelessWidget {
       return [];
     }
 
-    final Sura? surah = quranData.firstWhere((s) => s.index == surahNum);
-    if (surah == null) return [];
-
+    final Sura surah = quranData.firstWhere((s) => s.index == surahNum);
     // Find ayahs that match or start with the queried number.
     return surah.ayas
         .where((aya) => aya.index.toString().startsWith(ayahNum.toString()))
