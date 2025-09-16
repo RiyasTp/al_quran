@@ -29,26 +29,42 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.94,
+      ),
       padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(),
-            SizedBox(height: 16),
-            _buildAppSettings(),
-            Divider(height: 32),
-            _buildFontSettings(),
-            Divider(height: 32),
-            _buildTafseerSettings(),
-            SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
-          ],
-        ),
+      child: Column(
+        children: [
+          _buildHeader(),
+          SizedBox(height: 16),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildAppSettings(),
+                  Divider(height: 32),
+                  _buildFontSettings(),
+                  Divider(height: 32),
+                  _buildTafseerSettings(),
+                  Divider(height: 32),
+                  _buildRecitationSettings(),
+                  Divider(height: 32),
+                  _buildResetSettings(),
+                  SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -215,7 +231,8 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Translation Settings', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Translation Settings',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         SizedBox(height: 12),
         SwitchListTile(
           title: Text('Show Translation'),
@@ -270,6 +287,76 @@ class _SettingsBottomSheetState extends State<SettingsBottomSheet> {
         ),
         SizedBox(height: 16),
       ],
+    );
+  }
+
+  Widget _buildRecitationSettings() {
+    final recitations = _currentSettings.allRecitations;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Recitation Settings',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          value: recitations
+              .firstWhere((reciter) => reciter.id == _currentSettings.reciterId,
+                  orElse: () => recitations.first)
+              .id,
+          decoration: InputDecoration(
+            labelText: 'Reciter',
+            border: OutlineInputBorder(),
+          ),
+          items: recitations.map((reciter) {
+            return DropdownMenuItem(
+              value: reciter.id,
+              child: Text(reciter.name),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              setState(() {
+                _currentSettings = _currentSettings.copyWith(reciterId: value);
+              });
+              onSettingsChanged(_currentSettings);
+            }
+          },
+        ),
+        SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildResetSettings() {
+    return ElevatedButton(
+      onPressed: () async {
+        // show confirmation dialogbox
+        final result = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Reset Settings'),
+            content: Text('Are you sure you want to reset all settings?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+                child: Text('Reset'),
+              ),
+            ],
+          ),
+        );
+        if (result != true) return;
+        setState(() {
+          _currentSettings = AppSettings(); // Reset to default settings
+        });
+        onSettingsChanged(_currentSettings);
+      },
+      child: Text('Reset to Default Settings'),
     );
   }
 }

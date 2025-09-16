@@ -13,6 +13,7 @@ import 'package:al_quran/features/bookmarks/book_marks_title_sheet.dart';
 import 'package:al_quran/features/notes/edit_notes_bottom_sheet.dart';
 import 'package:al_quran/features/notes/notes_list_bottom_sheet.dart';
 import 'package:al_quran/features/notes/notes_view_model.dart';
+import 'package:al_quran/features/settings/settings_model.dart';
 import 'package:al_quran/features/settings/settings_screen.dart';
 import 'package:al_quran/features/settings/settings_view_model.dart';
 import 'package:al_quran/main.dart';
@@ -50,7 +51,8 @@ class _AyahPageState extends State<AyahPage> {
   @override
   void initState() {
     super.initState();
-    audioPlayer = QuranAudioPlayer();
+    final settingsVM = context.read<AppSettingsViewModel>();
+    audioPlayer = QuranAudioPlayer(settingsVM.settings.reciterId);
 
     audioPlayer.init();
     audioPlayer.addListener(() {
@@ -90,8 +92,13 @@ class _AyahPageState extends State<AyahPage> {
   bool readMode = false;
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
+    // final settingsVM = context.read<AppSettingsViewModel>();
+    return ChangeNotifierProxyProvider<AppSettingsViewModel, QuranAudioPlayer>(
       create: (context) => audioPlayer,
+      update: (context, settingsVM, _) {
+        audioPlayer.reciterId = settingsVM.settings.reciterId;
+        return audioPlayer;
+      },
       child: Scaffold(
         bottomNavigationBar: QuranPlayerControls(
           audioPlayer: audioPlayer,

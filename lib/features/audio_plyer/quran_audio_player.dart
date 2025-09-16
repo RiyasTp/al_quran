@@ -10,6 +10,10 @@ import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 
 class QuranAudioPlayer extends ChangeNotifier {
+  QuranAudioPlayer(String reciterId) {
+    _reciterId = reciterId;
+  }
+
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   late final QuranAudioCache _audioCache;
@@ -17,8 +21,14 @@ class QuranAudioPlayer extends ChangeNotifier {
   get downloadManger => _downloadManager;
 
   static const String _baseUrl = 'https://tanzil.net/res/audio/';
-  String reciterName = 'afasy';
-  List<String> authors = ['afasy', 'mishary'];
+
+  String _reciterId = 'afasy';
+  String get reciterId => _reciterId;
+  set reciterId(String name) {
+    _reciterId = name;
+    notifyListeners();
+  }
+
   static const String _audioFormat = '.mp3';
 
   Sura? _currentSura;
@@ -39,7 +49,7 @@ class QuranAudioPlayer extends ChangeNotifier {
   Duration get position => _audioPlayer.position;
   bool get loopMode => _loopMode;
   double get playbackSpeed => _playbackSpeed;
-  
+
   bool initilized = false;
   Future<void> init() async {
     final session = await AudioSession.instance;
@@ -48,13 +58,13 @@ class QuranAudioPlayer extends ChangeNotifier {
     final cachePath = '${cacheDir.path}/quran_audio_cache';
     _downloadManager = QuranDownloadManager(cachePath: cachePath);
     _audioCache = QuranAudioCache(QuranDownloadManager(cachePath: cachePath));
-   initilized = true;
+    initilized = true;
     notifyListeners();
   }
 
   get isPlaying => _audioPlayer.playing;
 
-Future<void> playSurah(Sura sura, {int startAya = 0}) async {
+  Future<void> playSurah(Sura sura, {int startAya = 0}) async {
     _currentSura = sura;
     _currentAyas = sura.ayas;
     _currentAyaIndex = startAya;
@@ -62,7 +72,7 @@ Future<void> playSurah(Sura sura, {int startAya = 0}) async {
     // Check if surah is downloaded
     final isDownloaded = await _downloadManager.isSurahDownloaded(
       sura.index,
-      reciterName,
+      _reciterId,
     );
 
     if (isDownloaded) {
@@ -76,7 +86,7 @@ Future<void> playSurah(Sura sura, {int startAya = 0}) async {
     final source = await _audioCache.getAyaAudio(
       surahNumber: _currentSura!.index,
       ayaNumber: _currentAyas![_currentAyaIndex].index,
-      reciter: reciterName,
+      reciter: _reciterId,
     );
 
     await _audioPlayer.setAudioSource(source);
@@ -88,7 +98,7 @@ Future<void> playSurah(Sura sura, {int startAya = 0}) async {
       await _audioCache.preloadNextAya(
         surahNumber: _currentSura!.index,
         currentAyaNumber: _currentAyas![_currentAyaIndex].index,
-        reciter: reciterName,
+        reciter: _reciterId,
       );
     }
   }
@@ -108,7 +118,7 @@ Future<void> playSurah(Sura sura, {int startAya = 0}) async {
       unawaited(_audioCache.getAyaAudio(
         surahNumber: _currentSura!.index,
         ayaNumber: _currentAyas![_currentAyaIndex + 1].index,
-        reciter: reciterName,
+        reciter: _reciterId,
         preload: true,
       ));
     }
@@ -167,7 +177,6 @@ Future<void> playSurah(Sura sura, {int startAya = 0}) async {
     }
   }
 
-
   get canShowControls => _currentAyas != null && _currentSura != null;
 
   Future<void> playNextAya() async {
@@ -196,7 +205,7 @@ Future<void> playSurah(Sura sura, {int startAya = 0}) async {
   }
 
   String _getAyaAudioUrl(String suraIndex, String ayaIndex) {
-    return "${_baseUrl}afasy/${suraIndex.padLeft(3, '0')}${ayaIndex.padLeft(3, '0')}$_audioFormat";
+    return "${_baseUrl}$reciterId/${suraIndex.padLeft(3, '0')}${ayaIndex.padLeft(3, '0')}$_audioFormat";
   }
 
   Future<void> play() async {

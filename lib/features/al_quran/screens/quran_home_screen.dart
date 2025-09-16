@@ -1,3 +1,4 @@
+import 'package:al_quran/features/about/about_screen.dart';
 import 'package:al_quran/features/al_quran/models/quran_models.dart';
 import 'package:al_quran/features/al_quran/screens/quran_data_wise_screen.dart';
 import 'package:al_quran/features/al_quran/screens/sheets_and_alerts/search_dialog.dart';
@@ -30,6 +31,11 @@ class _QuranScreenState extends State<QuranScreen> {
       initialIndex: 0,
       child: Scaffold(
         appBar: AppBar(
+            leading: IconButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutScreen()));
+              },
+              icon: const Icon(Icons.menu)),
             bottom: TabBar(
               tabs: [
                 Tab(text: 'Sura'),

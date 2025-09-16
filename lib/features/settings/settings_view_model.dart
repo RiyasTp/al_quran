@@ -14,6 +14,7 @@ class AppSettingsViewModel extends ChangeNotifier {
 
   void resetSettings() {
     _settings = AppSettings();
+    saveSettings(settings);
     notifyListeners();
   }
 
@@ -27,6 +28,7 @@ class AppSettingsViewModel extends ChangeNotifier {
     await prefs.setString('quranFontFamily', settings.quranFontFamily);
     await prefs.setString('themeMode', settings.themeMode.toString());
     await prefs.setString('translationAuthor', settings.translationAuthor);
+    await prefs.setString('quranReciter', settings.reciterId);
   }
 
   Future<AppSettings> loadSettings() async {
@@ -39,6 +41,7 @@ class AppSettingsViewModel extends ChangeNotifier {
       themeMode: _stringToThemeMode(prefs.getString('themeMode')),
       showTaranslation: prefs.getBool('showTaranslation'),
       translationAuthor: prefs.getString('translationAuthor'),
+      reciterId: prefs.getString('quranReciter'),
     );
   }
 

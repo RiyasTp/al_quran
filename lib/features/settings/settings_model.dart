@@ -2,6 +2,7 @@
 
 import 'dart:developer';
 
+import 'package:al_quran/features/audio_plyer/reciter_model.dart';
 import 'package:flutter/material.dart';
 
 const _MAX_FONT_SIZE = 2.0;
@@ -18,11 +19,8 @@ const ALL_TRANSLATION_AUTHORS = [
   'Sahih International',
 ];
 
-const DEFAULT_RECITATION =  'Abdul Basit Murattal';
-const ALL_RECITATIONS = [
-  'Abdul Basit Murattal',
-];
-
+const DEFAULT_RECITATION = RecitersData.DEFAULT_RECITATION;
+const ALL_RECITATIONS = RecitersData.allRecitations;
 
 class AppSettings {
   ThemeMode _themeMode = ThemeMode.system;
@@ -32,8 +30,9 @@ class AppSettings {
   String _quranFontFamily = DEFAULT_QURAN_FONT_FAMILY;
   bool _showTaranslation = true;
   String _translationAuthor = DEFAULT_TRANSLATION_AUTHOR;
+  String _reciterId = RecitersData.DEFAULT_RECITATION.id;
 
-  List<String> get allRecitations => ALL_RECITATIONS;
+  List<ReciterModel> get allRecitations => ALL_RECITATIONS;
   List<String> get allTranslationAuthors => ALL_TRANSLATION_AUTHORS;
   List<String> get allFontFamilies => ALL_FONT_FAMILIES;
 
@@ -44,6 +43,7 @@ class AppSettings {
     String? quranFontFamily = DEFAULT_QURAN_FONT_FAMILY,
     bool? showTaranslation = true,
     String? translationAuthor = DEFAULT_TRANSLATION_AUTHOR,
+    String? reciterId,
     ThemeMode? themeMode = ThemeMode.system,
   })  : _quranFontSize = quranFontSize ?? _DEFAULT_FONT_SIZE,
         _translationFontSize = translationFontSize ?? _DEFAULT_FONT_SIZE,
@@ -51,7 +51,8 @@ class AppSettings {
         _quranFontFamily = quranFontFamily ?? DEFAULT_QURAN_FONT_FAMILY,
         _showTaranslation = showTaranslation ?? true,
         _translationAuthor = translationAuthor ?? DEFAULT_TRANSLATION_AUTHOR,
-        _themeMode = themeMode ?? ThemeMode.system;
+        _themeMode = themeMode ?? ThemeMode.system,
+        _reciterId = reciterId ?? DEFAULT_RECITATION.id;
 
   ThemeMode get themeMode => _themeMode;
   set themeMode(ThemeMode value) {
@@ -113,6 +114,15 @@ class AppSettings {
     _translationAuthor = value;
   }
 
+  String get reciterId => _reciterId;
+  set reciterId(String value) {
+    if (!RecitersData.allRecitations.any((a) => a.id == value)) {
+      log("Invalid reciter name: $value. Using default: $DEFAULT_RECITATION");
+      value = DEFAULT_RECITATION.id;
+    }
+    _reciterId = value;
+  }
+
   AppSettings copyWith({
     double? quranFontSize,
     double? tafseerFontSize,
@@ -120,6 +130,7 @@ class AppSettings {
     String? fontFamily,
     bool? showTaranslation,
     String? translationAuthor,
+    String? reciterId,
     ThemeMode? themeMode,
   }) {
     return AppSettings(
@@ -129,6 +140,7 @@ class AppSettings {
       quranFontFamily: fontFamily ?? _quranFontFamily,
       showTaranslation: showTaranslation ?? _showTaranslation,
       translationAuthor: translationAuthor ?? _translationAuthor,
+      reciterId: reciterId ?? _reciterId,
       themeMode: themeMode ?? _themeMode,
     );
   }
